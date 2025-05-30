@@ -436,7 +436,7 @@ export const seriesData = {
       {
         id: "cerito-916",
         name: "Cerito 916",
-        description: "Compact bus for urban transportation",
+        description: "The Hino 916 Cerito Bus offers a comfortable, efficient, and reliable ride for urban and intercity travel.",
         image: "/images/bus-cerito-916.jpg",
         price: 3250000,
         engine: "N04C-WK Diesel Engine",
@@ -452,8 +452,8 @@ export const seriesData = {
       {
         id: "916",
         name: "916",
-        description: "Compact bus for urban transportation",
-        image: "/images/bus-cerito-916.jpg",
+        description: "The Hino 916 Bus delivers smooth, efficient performance with a spacious, safe, and comfortable design for public and private transport.",
+        image: "/images/916.png",
         price: 3250000,
         engine: "N04C-WK Diesel Engine",
         specifications: {
@@ -468,8 +468,8 @@ export const seriesData = {
       {
         id: "1021",
         name: "1021",
-        description: "Compact bus for urban transportation",
-        image: "/images/bus-cerito-916.jpg",
+        description: "The Hino 1021 Bus offers durable, versatile performance with ample seating and safety features for both urban and long-distance travel.",
+        image: "/images/1021.png",
         price: 3250000,
         engine: "N04C-WK Diesel Engine",
         specifications: {
@@ -482,6 +482,38 @@ export const seriesData = {
         },
       },
       {
+        id: "1625",
+        name: "1625",
+        description: "The Hino 1625 Bus delivers strong, reliable performance with spacious comfort and advanced safety for both city and long-distance travel.",
+        image: "/images/1625.png",
+        price: 3250000,
+        engine: "N04C-WK Diesel Engine",
+        specifications: {
+          "Gross Vehicle Weight": "16,000 kg",
+          "Chassis Dimensions (L x W x H)": "10,500 x 2,480 x 3,700 - 3,900 mm",
+          Wheelbase: "5,530 mm",
+          "Max Output": "240 PS",
+          "Max Torque": "716 Nm",
+          "Max Speed": "104 km/h",
+        },
+      },
+      {
+        id: "1625-long",
+        name: "1625 Long",
+        description: "The Hino 1625 Bus delivers strong, reliable performance with spacious comfort and advanced safety for both city and long-distance travel.",
+        image: "/images/1625.png",
+        price: 3250000,
+        engine: "N04C-WK Diesel Engine",
+        specifications: {
+          "Gross Vehicle Weight": "16,000 kg",
+          "Chassis Dimensions (L x W x H)": "10,500 x 2,480 x 3,700 - 3,900 mm",
+          Wheelbase: "5,530 mm",
+          "Max Output": "240 PS",
+          "Max Torque": "716 Nm",
+          "Max Speed": "104 km/h",
+        },
+      },
+      {
         id: "rk-1426",
         name: "RK 1426",
         description: "Mid-size bus for intercity travel",
@@ -489,12 +521,28 @@ export const seriesData = {
         price: 4150000,
         engine: "J08E-VD Diesel Engine",
         specifications: {
-          "Seating Capacity": "45 + 1",
+          "Gross Vehicle Weight": "14,000 kg",
           "Dimensions (L x W x H)": "9,200 x 2,400 x 3,300 mm",
-          Wheelbase: "5,000 mm",
-          "Max Output": "260 PS",
-          "Max Torque": "770 Nm",
-          "Max Speed": "100 km/h",
+          Wheelbase: "5,200 mm",
+          "Max Output": "250 PS",
+          "Max Torque": "739 Nm",
+          "Max Speed": "114 km/h",
+        },
+      },
+      {
+        id: "rk-1426-long",
+        name: "RK 1426 Long",
+        description: "Mid-size bus for intercity travel",
+        image: "/images/bus-rk-1426.jpg",
+        price: 4150000,
+        engine: "J08E-VD Diesel Engine",
+        specifications: {
+          "Gross Vehicle Weight": "14,000 kg",
+          "Dimensions (L x W x H)": "12,000 x 2,480 x 3,550 - 3,800 mm",
+          Wheelbase: "6,000 mm",
+          "Max Output": "250 PS",
+          "Max Torque": "739 Nm",
+          "Max Speed": "114 km/h",
         },
       },
       {
@@ -505,12 +553,28 @@ export const seriesData = {
         price: 5250000,
         engine: "J08E-WG Diesel Engine",
         specifications: {
-          "Seating Capacity": "60 + 1",
-          "Dimensions (L x W x H)": "11,500 x 2,500 x 3,500 mm",
+          "Gross Vehicle Weight": "16,000 kg",
+          "Dimensions (L x W x H)": "12,000 x 2,480 x 3,550 - 3,800 mm",
           Wheelbase: "6,000 mm",
+          "Max Output": "250 PS",
+          "Max Torque": "739 Nm",
+          "Max Speed": "118 km/h",
+        },
+      },
+      {
+        id: "hs-1829",
+        name: "HS 1829",
+        description: "Large bus for long-distance travel",
+        image: "/images/bus-hs-1829.jpg",
+        price: 5250000,
+        engine: "J08E-WG Diesel Engine",
+        specifications: {
+          "Gross Vehicle Weight": "18,000 kg",
+          "Dimensions (L x W x H)": "12,200 x 2,500 x 3,270 mm",
+          Wheelbase: "5,875 mm",
           "Max Output": "280 PS",
-          "Max Torque": "900 Nm",
-          "Max Speed": "95 km/h",
+          "Max Torque": "824 Nm",
+          "Max Speed": "120 km/h",
         },
       },
     ],
@@ -527,28 +591,44 @@ export const seriesData = {
         price: 1950000,
         engine: "N04C-WB Diesel Engine",
         specifications: {
-          "Seating Capacity": "22 + 1",
-          "Dimensions (L x W x H)": "6,000 x 2,100 x 2,700 mm",
-          Wheelbase: "3,400 mm",
+          "Gross Vehicle Weight": "4,970 kg",
+          "Dimensions (L x W x H)": "6,215 x 1,780 x 2,860 mm",
+          Wheelbase: "3,405 mm",
+          "Max Output": "136 PS",
+          "Max Torque": "390 Nm",
+          "Max Speed": "150 km/h",
+        },
+      },
+      {
+        id: "puv-class-ii-s",
+        name: "PUV Class II-S",
+        description: "Modern jeepney replacement for urban routes",
+        image: "/images/puv-class-ii-s.jpg",
+        price: 1950000,
+        engine: "N04C-WB Diesel Engine",
+        specifications: {
+          "Gross Vehicle Weight": "4,995 kg",
+          "Dimensions (L x W x H)": "6,500 x 2,100 x 2,890 mm approx.",
+          Wheelbase: "3,430 approx. mm",
           "Max Output": "150 PS",
           "Max Torque": "420 Nm",
-          "Max Speed": "100 km/h",
+          "Max Speed": "123 km/h",
         },
       },
       {
         id: "puv-class-iii",
         name: "PUV Class III",
         description: "Modern jeepney replacement for longer routes",
-        image: "/images/puv-class-iii.jpg",
+        image: "/images/puv-class-ii-s.jpg",
         price: 2250000,
         engine: "J05E-UG Diesel Engine",
         specifications: {
-          "Seating Capacity": "30 + 1",
-          "Dimensions (L x W x H)": "7,000 x 2,200 x 2,800 mm",
-          Wheelbase: "3,800 mm",
-          "Max Output": "180 PS",
-          "Max Torque": "530 Nm",
-          "Max Speed": "100 km/h",
+          "Gross Vehicle Weight": "4,995 kg",
+          "Dimensions (L x W x H)": "6,950 x 1,995 x 2,935 mm",
+          Wheelbase: "3,880 mm",
+          "Max Output": "136 PS",
+          "Max Torque": "390 Nm",
+          "Max Speed": "120 km/h",
         },
       },
     ],
@@ -798,7 +878,8 @@ export function getCompatibleBodies(seriesSlug: string, modelId: string) {
   const compatibleBodies: any[] = []
 
   // Get all body types that are compatible with this model
-  model.bodyType?.forEach((bodyType: string) => {
+  if ('bodyType' in model) {
+    model.bodyType.forEach((bodyType: string) => {
     const bodies = bodyTypes[bodyType as keyof typeof bodyTypes] || []
 
     // Filter bodies that are compatible with this series
@@ -810,7 +891,7 @@ export function getCompatibleBodies(seriesSlug: string, modelId: string) {
   })
 
   return compatibleBodies
-}
+}}
 
 export function getAllBodies() {
   const allBodies: any[] = []
@@ -836,4 +917,3 @@ export function getBodyById(bodyId: string) {
 
   return null
 }
-
