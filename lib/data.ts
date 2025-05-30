@@ -453,7 +453,7 @@ export const seriesData = {
         id: "916",
         name: "916",
         description: "The Hino 916 Bus delivers smooth, efficient performance with a spacious, safe, and comfortable design for public and private transport.",
-        image: "/images/916.png",
+        image: "/images/bus-916.png",
         price: 3250000,
         engine: "N04C-WK Diesel Engine",
         specifications: {

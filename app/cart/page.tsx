@@ -4,6 +4,8 @@ import type React from "react";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { format } from "date-fns";
+import ReactDOM from "react-dom/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,20 +20,114 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+// Define the order data interface
+interface OrderData {
+  orderDate: string;
+  customer: {
+    fullName: string;
+    email: string;
+    phone: string;
+    barangay: string;
+    city: string;
+    province: string;
+  };
+  items: Array<{
+    id: string | number;
+    name: string;
+    price: number;
+    quantity: number;
+  }>;
+  total: number;
+}
+
+// Print Layout Component
+const PrintLayout = ({ orderData }: { orderData: OrderData }) => (
+  <div className="print-only p-8">
+    <div className="text-center mb-8">
+      <h1 className="text-3xl font-bold mb-2">Hino Motors Philippines</h1>
+      <p>Order Summary</p>
+      <p className="text-sm">
+        Date: {format(new Date(orderData.orderDate), "PPP")}
+      </p>
+    </div>
+
+    <div className="grid grid-cols-2 gap-8 mb-8">
+      <div>
+        <h2 className="text-xl font-bold mb-2">Customer Information</h2>
+        <p>
+          <strong>Name:</strong> {orderData.customer.fullName}
+        </p>
+        <p>
+          <strong>Email:</strong> {orderData.customer.email}
+        </p>
+        <p>
+          <strong>Phone:</strong> {orderData.customer.phone}
+        </p>
+        <p>
+          <strong>Address:</strong>
+        </p>
+        <p>{orderData.customer.barangay}</p>
+        <p>{orderData.customer.city}</p>
+        <p>{orderData.customer.province}</p>
+      </div>
+    </div>
+
+    <table className="w-full mb-8">
+      <thead>
+        <tr className="border-b-2 border-black">
+          <th className="text-left py-2">Item</th>
+          <th className="text-right py-2">Price</th>
+          <th className="text-right py-2">Qty</th>
+          <th className="text-right py-2">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {orderData.items.map((item) => (
+          <tr key={item.id} className="border-b">
+            <td className="py-2">{item.name}</td>
+            <td className="text-right py-2">₱{item.price.toLocaleString()}</td>
+            <td className="text-right py-2">{item.quantity}</td>
+            <td className="text-right py-2">
+              ₱{(item.price * item.quantity).toLocaleString()}
+            </td>
+          </tr>
+        ))}
+        <tr className="font-bold">
+          <td colSpan={3} className="text-right py-4">
+            Total Amount:
+          </td>
+          <td className="text-right py-4">
+            ₱{orderData.total.toLocaleString()}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div className="mt-16 grid grid-cols-2 gap-8">
+      <div>
+        <div className="border-t border-black pt-4 mt-16">
+          <p className="text-center">Customer Signature</p>
+        </div>
+      </div>
+      <div>
+        <div className="border-t border-black pt-4 mt-16">
+          <p className="text-center">Authorized Signature</p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
   const { toast } = useToast();
 
-  // Dialog states
   const [showFormDialog, setShowFormDialog] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
-  // Customer info state
   const [customerInfo, setCustomerInfo] = useState({
     fullName: "",
     email: "",
     phone: "",
-    company: "",
     barangay: "",
     city: "",
     province: "",
@@ -47,10 +143,8 @@ export default function CartPage() {
     setCustomerInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Open confirmation dialog after form submit
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Validate required fields
     if (
       !customerInfo.fullName ||
       !customerInfo.email ||
@@ -66,12 +160,7 @@ export default function CartPage() {
       });
       return;
     }
-    setShowFormDialog(false);
-    setShowConfirmDialog(true);
-  };
 
-  // Finalize order
-  const handleConfirmOrder = () => {
     const orderData = {
       customer: customerInfo,
       items: cart,
@@ -79,16 +168,27 @@ export default function CartPage() {
       orderDate: new Date().toISOString(),
     };
 
-    console.log("Order data:", orderData);
+    // Create print container
+    const printContainer = document.createElement("div");
+    printContainer.id = "print-container";
+    document.body.appendChild(printContainer);
+
+    const root = ReactDOM.createRoot(printContainer);
+    root.render(<PrintLayout orderData={orderData} />);
 
     toast({
       title: "Order Submitted!",
       description: "Your order has been sent to Hino staff for processing",
     });
 
-    window.print();
-    clearCart();
-    setShowConfirmDialog(false);
+    setShowFormDialog(false);
+
+    // Print and cleanup
+    setTimeout(() => {
+      window.print();
+      document.body.removeChild(printContainer);
+      clearCart();
+    }, 100);
   };
 
   if (cart.length === 0) {
@@ -290,18 +390,6 @@ export default function CartPage() {
               />
             </div>
             <div>
-              <Label htmlFor="company" className="text-black">
-                Company (optional)
-              </Label>
-              <Input
-                id="company"
-                name="company"
-                value={customerInfo.company}
-                onChange={handleInputChange}
-                className="text-black"
-              />
-            </div>
-            <div>
               <Label htmlFor="barangay" className="text-black">
                 Barangay *
               </Label>
@@ -349,64 +437,10 @@ export default function CartPage() {
                 Cancel
               </Button>
               <Button type="submit" className="bg-red-600 text-white">
-                Review Order
+                Submit & Print
               </Button>
             </DialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirmation Dialog */}
-      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Order</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2 text-black">
-            <div>
-              <strong>Full Name:</strong> {customerInfo.fullName}
-            </div>
-            <div>
-              <strong>Email:</strong> {customerInfo.email}
-            </div>
-            <div>
-              <strong>Phone Number:</strong> {customerInfo.phone}
-            </div>
-            {customerInfo.company && (
-              <div>
-                <strong>Company:</strong> {customerInfo.company}
-              </div>
-            )}
-            <div>
-              <strong>Barangay:</strong> {customerInfo.barangay}
-            </div>
-            <div>
-              <strong>City/Municipality:</strong> {customerInfo.city}
-            </div>
-            <div>
-              <strong>Province:</strong> {customerInfo.province}
-            </div>
-            <div>
-              <strong>Total:</strong> ₱{totalPrice.toLocaleString()}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowConfirmDialog(false);
-                setShowFormDialog(true);
-              }}
-            >
-              Edit
-            </Button>
-            <Button
-              onClick={handleConfirmOrder}
-              className="bg-red-600 text-white"
-            >
-              Confirm & Print
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
