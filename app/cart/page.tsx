@@ -64,11 +64,9 @@ const PrintLayout = ({ orderData }: { orderData: OrderData }) => (
           <strong>Phone:</strong> {orderData.customer.phone}
         </p>
         <p>
-          <strong>Address:</strong>
+          <strong>Address:</strong> {orderData.customer.barangay},{" "}
+          {orderData.customer.city}, {orderData.customer.province}
         </p>
-        <p>{orderData.customer.barangay}</p>
-        <p>{orderData.customer.city}</p>
-        <p>{orderData.customer.province}</p>
       </div>
     </div>
 

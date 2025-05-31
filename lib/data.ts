@@ -657,7 +657,6 @@ export const bodyTypes = {
       name: "10ft Freezer Body",
       description: "10ft refrigerated truck body for temperature-controlled cargo",
       image: "/images/bodies/freezer-10.jpg",
-      price: 500000, // Add price
       compatibleSeries: ["200-series", "300-series"],
       specifications: {
         Length: "10 feet",
@@ -735,7 +734,7 @@ export const bodyTypes = {
       id: "cg-10",
       name: "10ft Cargo Body",
       description: "10ft standard cargo body for general transport",
-      image: "/images/bodies/cargo-10.jpg",
+      image: "/images/bodies/container-10.jpg",
       compatibleSeries: ["200-series", "300-series"],
       specifications: {
         Length: "10 feet",
@@ -747,7 +746,7 @@ export const bodyTypes = {
       id: "cg-20",
       name: "20ft Cargo Body",
       description: "20ft cargo body for larger freight",
-      image: "/images/bodies/cargo-20.jpg",
+      image: "/images/bodies/container-20.jpg",
       compatibleSeries: ["300-series", "500-series"],
       specifications: {
         Length: "20 feet",
@@ -773,7 +772,7 @@ export const bodyTypes = {
       id: "dt-15",
       name: "15cu.m Dump Truck",
       description: "15 cubic meter dump truck body for heavy duty",
-      image: "/images/bodies/dump-15.jpg",
+      image: "/images/bodies/dump-6.jpg",
       compatibleSeries: ["500-series"],
       specifications: {
         "Capacity": "15 cubic meters",
@@ -853,7 +852,7 @@ export const bodyTypes = {
       id: "ds-16",
       name: "16ft Dropside",
       description: "16ft dropside body for larger cargo",
-      image: "/images/bodies/dropside-16.jpg",
+      image: "/images/bodies/dropside-10.jpg",
       compatibleSeries: ["300-series"],
       specifications: {
         Length: "16 feet",

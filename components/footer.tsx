@@ -6,35 +6,41 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">About Hino</h3>
             <p className="text-sm">
-              Hino Motors Philippines Corporation is the exclusive distributor of Hino trucks and buses in the
-              Philippines.
+              Hino Motors Philippines Corporation is the exclusive distributor
+              of Hino trucks and buses in the Philippines.
             </p>
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4">Contact Us</h3>
             <p className="text-sm">
-              Phone: (02) 8-XXX-XXXX
+              Trunkline: (043) 724 5287
               <br />
-              Email: info@hinophilippines.com
+              Sales: 0917 317 7235
               <br />
-              Address: Hino Motors Philippines Corporation
+              Service & Parts : 0917 702 1497
+              <br />
+              CRD & Insurance : 0995 529 8490
+              <br />
+              <br />
+              Address: Hino Batangas Sitio 6, Diversion Road Balagtas, Batangas
+              City Philippines
             </p>
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4">Quick Links</h3>
             <ul className="text-sm space-y-2">
-              <li>Home</li>
-              <li>Products</li>
-              <li>About Us</li>
-              <li>Contact</li>
+              <li>
+                <a href="/" className="hover:underline">
+                  Home
+                </a>
+              </li>
             </ul>
           </div>
         </div>
         <div className="mt-8 text-center text-sm">
-          <p>© {new Date().getFullYear()} Hino Motors Philippines Corporation. All rights reserved.</p>
+          <p>Hino Batangas © 2025. All rights reserved</p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
-
