@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, MouseEvent } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -27,13 +27,13 @@ export default function BodiesPage() {
   const [compatibleBodies, setCompatibleBodies] = useState<any[]>([]);
   const [selectedBody, setSelectedBody] = useState<any>(null);
 
-  const { cart, addToCart } = useCart();
+  const { addToCart } = useCart();
   const { toast } = useToast();
 
   useEffect(() => {
     const modelData = getModelData(series, modelId);
     const categories = getBodyCategories();
-    const bodies = getCompatibleBodies(series, modelId);
+    const bodies = getCompatibleBodies(series, modelId) || [];
 
     setModel(modelData);
     setBodyCategories(categories);
@@ -43,6 +43,15 @@ export default function BodiesPage() {
   if (!model) {
     return <div className="container mx-auto py-8 px-4">Loading...</div>;
   }
+
+  const customBody = {
+    id: "custom-body",
+    name: "Custom Body",
+    description: "Customize your own body according to your specifications",
+    image: "/images/hino-logo.png",
+    price: 0,
+    isCustom: true,
+  };
 
   const handleAddBodyToCart = () => {
     if (!selectedBody) {
@@ -54,21 +63,60 @@ export default function BodiesPage() {
       return;
     }
 
-    // Add the body to cart
+    // Add chassis to cart
+    addToCart({
+      id: `${series}-${modelId}`,
+      type: "chassis",
+      name: model.name,
+      series: series,
+      model: modelId,
+      price: model.price,
+      image: model.image,
+      specifications: model.specifications,
+    });
+
+    // Add body to cart
     addToCart({
       id: `body-${selectedBody.id}`,
       type: "body",
       name: selectedBody.name,
-      price: selectedBody.price,
+      price: selectedBody.isCustom ? 0 : selectedBody.price,
       image: selectedBody.image,
       specifications: selectedBody.specifications,
-    });
+      isCustom: Boolean(selectedBody.isCustom),
+    } as CartItem);
 
     toast({
-      title: "Added to cart",
-      description: "Your selection has been added to the cart",
+      title: "Package added to cart",
+      description: selectedBody.isCustom
+        ? "Chassis and custom body added. Please consult staff for final body pricing."
+        : "Complete package has been added to your cart",
     });
+
+    router.push("/cart");
   };
+
+  const filteredBodies =
+    selectedCategory === "all"
+      ? compatibleBodies
+      : compatibleBodies.filter(
+          (body) =>
+            body.id.includes(selectedCategory.toLowerCase()) ||
+            body.name.toLowerCase().includes(selectedCategory.toLowerCase())
+        );
+
+  interface CartItem {
+    id: string;
+    type: "chassis" | "body";
+    name: string;
+    price: number;
+    image: string;
+    specifications?: Record<string, any>;
+    quantity?: number;
+    isCustom?: boolean;
+    series?: string;
+    model?: string;
+  }
 
   const handleBuyBodyOnly = () => {
     if (!selectedBody) {
@@ -80,17 +128,23 @@ export default function BodiesPage() {
       return;
     }
 
-    // Add the body to cart
     addToCart({
       id: `body-${selectedBody.id}`,
       type: "body",
       name: selectedBody.name,
-      price: selectedBody.price,
+      price: selectedBody.isCustom ? 0 : selectedBody.price,
       image: selectedBody.image,
       specifications: selectedBody.specifications,
+      isCustom: selectedBody.isCustom,
+    } as CartItem);
+
+    toast({
+      title: "Added to cart",
+      description: selectedBody.isCustom
+        ? "Custom body added to cart. Please consult with our staff for final pricing."
+        : "Your selection has been added to the cart",
     });
 
-    // Redirect to cart
     router.push("/cart");
   };
 
@@ -104,7 +158,7 @@ export default function BodiesPage() {
       return;
     }
 
-    // First add the chassis to cart
+    // Add chassis to cart
     addToCart({
       id: `${series}-${modelId}`,
       type: "chassis",
@@ -114,35 +168,28 @@ export default function BodiesPage() {
       price: model.price,
       image: model.image,
       specifications: model.specifications,
-    });
+    } as CartItem);
 
-    // Then add the body to cart
+    // Add body to cart
     addToCart({
       id: `body-${selectedBody.id}`,
       type: "body",
       name: selectedBody.name,
-      price: selectedBody.price,
+      price: selectedBody.isCustom ? 0 : selectedBody.price,
       image: selectedBody.image,
       specifications: selectedBody.specifications,
-    });
+      isCustom: selectedBody.isCustom,
+    } as CartItem);
 
     toast({
       title: "Package added to cart",
-      description: "Chassis and body have been added to your cart",
+      description: selectedBody.isCustom
+        ? "Chassis and custom body added. Please consult staff for final body pricing."
+        : "Complete package has been added to your cart",
     });
 
-    // Redirect to cart
     router.push("/cart");
   };
-
-  const filteredBodies =
-    selectedCategory === "all"
-      ? compatibleBodies
-      : compatibleBodies.filter(
-          (body) =>
-            body.id.includes(selectedCategory.toLowerCase()) ||
-            body.name.toLowerCase().includes(selectedCategory.toLowerCase())
-        );
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -245,7 +292,9 @@ export default function BodiesPage() {
                       {selectedBody.description}
                     </p>
                     <p className="font-bold text-black">
-                      ₱{selectedBody.price.toLocaleString()}
+                      {selectedBody.isCustom
+                        ? "Price: To be discussed"
+                        : `₱${selectedBody.price.toLocaleString()}`}
                     </p>
                   </div>
                 </div>
@@ -258,6 +307,43 @@ export default function BodiesPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                selectedBody?.id === customBody.id
+                  ? "border-red-600 border-2 shadow-md"
+                  : "hover:border-red-300"
+              }`}
+              onClick={() => {
+                setSelectedBody(customBody);
+                toast({
+                  title: "Custom Body Selected",
+                  description:
+                    "Please consult with our staff for custom body specifications and pricing.",
+                  duration: 5000,
+                });
+              }}
+            >
+              <div className="flex items-start">
+                <div className="relative h-32 w-32 mr-4">
+                  <Image
+                    src={customBody.image}
+                    alt={customBody.name}
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-red-600">
+                    {customBody.name}
+                  </h3>
+                  <p className="text-sm text-black mb-2">
+                    {customBody.description}
+                  </p>
+                  <p className="font-bold text-black">Price: To be discussed</p>
+                </div>
+              </div>
+            </div>
+
             {filteredBodies.length > 0 ? (
               filteredBodies.map((body) => (
                 <div
@@ -286,7 +372,9 @@ export default function BodiesPage() {
                         {body.description}
                       </p>
                       <p className="font-bold text-black">
-                        ₱{body.price.toLocaleString()}
+                        {body.price
+                          ? `₱${body.price.toLocaleString()}`
+                          : "Price: To be discussed"}
                       </p>
                     </div>
                   </div>
