@@ -39,6 +39,7 @@ export default function BodyDetailPage() {
       price: body.price,
       image: body.image,
       specifications: body.specifications,
+      selectedBody: undefined,
     });
 
     toast({

@@ -24,7 +24,7 @@ export default function ComparisonPage() {
       price: item.price,
       image: item.image,
       specifications: item.specifications,
-      quantity: 1,
+      selectedBody: undefined,
     });
 
     toast({

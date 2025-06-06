@@ -45,6 +45,7 @@ export default function ModelPage() {
       price: model.price,
       image: model.image,
       specifications: model.specifications,
+      selectedBody: undefined,
     });
 
     toast({

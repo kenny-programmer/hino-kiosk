@@ -2,14 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+// This can stay here or be moved to your data.ts file and imported
 const productSeries = [
   {
-    id: "200",
+    id: "200", // This ID will be used in the URL, e.g., /products/200
     name: "200 Series",
     description:
       "Transform city logistics with the Hino 200 Series—powerful, agile, and perfect for tight spaces and heavy loads.",
     image: "/images/200-series.png",
-    link: "/products/200-series",
+    link: "/products/200-series", // Link to the dynamic series page
   },
   {
     id: "300",
@@ -74,20 +75,18 @@ export default function ProductsPage() {
                 style={{ objectFit: "cover" }}
               />
             </div>
-
             <div className="p-6">
               <h2 className="text-2xl font-bold mb-2 text-black">
                 {series.name}
               </h2>
               <p className="text-black mb-6">{series.description}</p>
-
               <Link href={series.link}>
                 <Button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg">
                   {series.id === "buses" || series.id === "puvs"
                     ? "View Details"
-                    : series.id === "bodies"
-                    ? "Browse Bodies"
-                    : "View Body Options"}
+                    : // The link for 200, 300, 500 series will take them to a page
+                      // where they can see models AND then body options with the dynamic sidebar.
+                      "View Models & Bodies"}
                 </Button>
               </Link>
             </div>

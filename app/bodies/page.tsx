@@ -4,21 +4,21 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getBodyCategories, getAllBodies } from "@/lib/data";
+import { bodyCategories, getAllBodies } from "@/lib/data";
 import { Eye } from "lucide-react";
 import { ComparisonButton } from "@/components/comparison-button";
 import { ComparisonFloatingBar } from "@/components/comparison-floating-bar";
 
 export default function BodiesPage() {
-  const [bodyCategories, setBodyCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [allBodies, setAllBodies] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   useEffect(() => {
-    const categories = getBodyCategories();
+    const fetchedCategories = bodyCategories;
     const bodies = getAllBodies();
 
-    setBodyCategories(categories);
+    setCategories(fetchedCategories);
     setAllBodies(bodies);
   }, []);
 
@@ -54,7 +54,7 @@ export default function BodiesPage() {
                 All Categories
               </button>
 
-              {bodyCategories.map((category) => (
+              {categories.map((category) => (
                 <button
                   key={category}
                   className={`w-full text-left p-4 ${
