@@ -1,4 +1,3 @@
-// app/cart/page.tsx
 "use client";
 
 import type ReactImport from "react";
@@ -99,8 +98,8 @@ export default function CartPage() {
     let numericTotal = 0;
     let hasVariablePriceItem = false;
     cart.forEach((item: CartItem) => {
-      if (item.type === "chassis")
-        numericTotal += (item.price as number) * item.quantity;
+      if (item.type === "chassis" && typeof item.price === "number")
+        numericTotal += item.price * item.quantity;
       if (item.selectedBody?.isCustom) hasVariablePriceItem = true;
       else if (item.type === "body" && typeof item.price === "number")
         numericTotal += item.price * item.quantity;
@@ -246,11 +245,7 @@ export default function CartPage() {
     try {
       toast({ title: "Processing Your Order..." });
 
-      // 1. Generate the PDF and get its Base64 representation
-      const pdfDoc = generatePDFDoc(orderData);
-      const pdfBase64 = pdfDoc.output("datauristring").split(",")[1];
-
-      // 2. Get EmailJS credentials
+      // Get EmailJS credentials
       const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
       const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
       const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
@@ -260,7 +255,7 @@ export default function CartPage() {
       }
       emailjs.init(publicKey);
 
-      // 3. Prepare the HTML for the email body
+      // Prepare the HTML for the email body
       const itemsHtml = `
         <table style="width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px;">
           ${orderData.items
@@ -290,7 +285,7 @@ export default function CartPage() {
         </table>
       `;
 
-      // 4. Create a common set of parameters for both emails
+      // Create a common set of parameters for both emails (NO ATTACHMENT)
       const commonEmailParams = {
         from_name: "Hino Motors Philippines - Batangas",
         order_id: orderData.orderId,
@@ -299,27 +294,23 @@ export default function CartPage() {
         customer_address: `${orderData.customer.barangay}, ${orderData.customer.city}, ${orderData.customer.province}`,
         order_items_html: itemsHtml,
         order_total: orderData.total,
-        // The PDF attachment is included here, so it's sent in both emails
-        pdf_attachment: pdfBase64,
+        // pdf_attachment: pdfBase64, // <-- ATTACHMENT REMOVED
       };
 
-      // 5. Prepare the two separate email promises
-
-      // Email to your admin address
+      // Prepare the two separate email promises
       const sendAdminEmail = emailjs.send(serviceId, templateId, {
         ...commonEmailParams,
-        to_email: "shantijop1234567890@gmail.com", // Your admin email
-        reply_to: orderData.customer.email, // So you can reply directly to the customer
+        to_email: "shantijop1234567890@gmail.com",
+        reply_to: orderData.customer.email,
       });
 
-      // Email to the customer
       const sendCustomerEmail = emailjs.send(serviceId, templateId, {
         ...commonEmailParams,
-        to_email: orderData.customer.email, // The customer's email from the form
-        reply_to: "shantijop1234567890@gmail.com", // So they can reply to you
+        to_email: orderData.customer.email,
+        reply_to: "shantijop1234567890@gmail.com",
       });
 
-      // 6. Send both emails concurrently and wait for them to finish
+      // Send both emails concurrently
       await Promise.all([sendAdminEmail, sendCustomerEmail]);
 
       toast({
@@ -374,8 +365,9 @@ export default function CartPage() {
         <p className="mb-4 text-gray-600">
           Your Order ID is <strong>{lastSuccessfulOrder.orderId}</strong>.
         </p>
+        {/* MODIFIED SUCCESS MESSAGE */}
         <p className="mb-8 text-gray-600">
-          A confirmation email with a PDF receipt has been sent to{" "}
+          A confirmation email has been sent to{" "}
           {lastSuccessfulOrder.customer.email}. We will get back to you shortly.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
@@ -404,6 +396,7 @@ export default function CartPage() {
   }
 
   if (cart.length === 0) {
+    // ... (rest of your JSX is perfect)
     return (
       <div className="container mx-auto py-12 px-4 text-center">
         <h1 className="text-3xl font-bold mb-6 text-black">
