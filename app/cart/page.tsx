@@ -217,10 +217,19 @@ export default function CartPage() {
     return pdf;
   };
 
-  // MODIFIED FUNCTION
+  // MODIFIED FUNCTION WITH DEBUGGING LOGS
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
+
+    // --- TEMPORARY DEBUGGING ---
+    // This will print the values Vercel sees to the browser console.
+    console.log("--- Vercel Environment Variable Check ---");
+    console.log("Service ID:", process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID);
+    console.log("Template ID:", process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID);
+    console.log("Public Key:", process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY);
+    console.log("---------------------------------------");
+    // ---------------------------
 
     const orderId = `HMP-${Date.now().toString().slice(-6)}`;
 
@@ -245,7 +254,6 @@ export default function CartPage() {
     try {
       toast({ title: "Processing Your Order..." });
 
-      // Get EmailJS credentials
       const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
       const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
       const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
@@ -255,14 +263,12 @@ export default function CartPage() {
       }
       emailjs.init(publicKey);
 
-      // Prepare the HTML for the email body
       const itemsHtml = `
         <table style="width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px;">
           ${orderData.items
             .map((item) => {
               let priceText: string;
               const displayName = getDisplayName(item);
-
               if (
                 item.type === "chassis" ||
                 (item.type === "body" && !item.selectedBody?.isCustom)
@@ -273,7 +279,6 @@ export default function CartPage() {
               } else {
                 priceText = CUSTOM_PRICE_TEXT;
               }
-
               return `
                 <tr style="border-bottom: 1px solid #eee;">
                   <td style="padding: 10px 5px;">${displayName} × ${item.quantity}</td>
@@ -285,7 +290,6 @@ export default function CartPage() {
         </table>
       `;
 
-      // Create a common set of parameters for both emails (NO ATTACHMENT)
       const commonEmailParams = {
         from_name: "Hino Motors Philippines - Batangas",
         order_id: orderData.orderId,
@@ -294,10 +298,8 @@ export default function CartPage() {
         customer_address: `${orderData.customer.barangay}, ${orderData.customer.city}, ${orderData.customer.province}`,
         order_items_html: itemsHtml,
         order_total: orderData.total,
-        // pdf_attachment: pdfBase64, // <-- ATTACHMENT REMOVED
       };
 
-      // Prepare the two separate email promises
       const sendAdminEmail = emailjs.send(serviceId, templateId, {
         ...commonEmailParams,
         to_email: "shantijop1234567890@gmail.com",
@@ -310,7 +312,6 @@ export default function CartPage() {
         reply_to: "shantijop1234567890@gmail.com",
       });
 
-      // Send both emails concurrently
       await Promise.all([sendAdminEmail, sendCustomerEmail]);
 
       toast({
@@ -365,7 +366,6 @@ export default function CartPage() {
         <p className="mb-4 text-gray-600">
           Your Order ID is <strong>{lastSuccessfulOrder.orderId}</strong>.
         </p>
-        {/* MODIFIED SUCCESS MESSAGE */}
         <p className="mb-8 text-gray-600">
           A confirmation email has been sent to{" "}
           {lastSuccessfulOrder.customer.email}. We will get back to you shortly.
@@ -396,7 +396,6 @@ export default function CartPage() {
   }
 
   if (cart.length === 0) {
-    // ... (rest of your JSX is perfect)
     return (
       <div className="container mx-auto py-12 px-4 text-center">
         <h1 className="text-3xl font-bold mb-6 text-black">
