@@ -30,7 +30,6 @@ export interface BodyVariantSpecification {
   [key: string]: string | number | undefined;
 }
 
-// 1. Updated CustomMeasurementType to include 'detailed'
 export type CustomMeasurementType = 'lwh' | 'volume' | 'detailed';
 
 export interface BodyVariant {
@@ -42,7 +41,7 @@ export interface BodyVariant {
   specifications: BodyVariantSpecification;
   price: number | string;
   isCustom?: boolean;
-  customMeasurementType?: CustomMeasurementType; // Now uses the updated type
+  customMeasurementType?: CustomMeasurementType;
   categoryForMeasurement?: string;
 }
 
@@ -50,7 +49,9 @@ export interface BodyTypes {
   [categoryName: string]: BodyVariant[];
 }
 
-// --- SERIES DATA (Complete: Trucks, YOUR Buses, YOUR PUVs) ---
+// --- SERIES DATA (Includes YOUR Trucks, Buses, and PUVs data) ---
+// !!! CRITICAL: REVIEW AND UPDATE ALL 'price' VALUES FOR CHASSIS MODELS !!!
+// !!! AND REVIEW 'bodyType' ARRAYS FOR TRUCKS FOR ACCURACY !!!
 export const seriesData: SeriesData = {
   "200-series": {
     title: "200 Series - Light Duty Trucks",
@@ -72,7 +73,7 @@ export const seriesData: SeriesData = {
       },
       {
         id: "415", name: "415", description: "The Hino 200 Series 415 combines power and agility for efficient heavy-load urban deliveries in challenging city conditions.",
-        image: "/images/200-series-315-nac.png", price: 1400000,
+        image: "/images/200-series-315-nac.png", price: 1400000, // YOUR PRICE for 415 was 9,999,999, using my placeholder
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker"],
         engine: "J05E-TP Diesel Engine",
         specifications: { "Gross Vehicle Weight": "3,800 kg", "Chassis Dimensions (L x W x H)": "4,595 x 1,695 x 2,030 mm", Wheelbase: "2,545 mm", "Max Output": "144 PS", "Max Torque": "300 Nm", "Max Speed": "130 km/h" },
@@ -85,70 +86,70 @@ export const seriesData: SeriesData = {
     models: [
       {
         id: "414i", name: "414i", description: "The Hino 300 Series 414i's modern, aerodynamic design improves urban maneuverability for efficient city deliveries.",
-        image: "/images/300-series-414i.jpg", price: 1800000,
+        image: "/images/300-series-414i.jpg", price: 1800000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "5,075 x 1,715 x 2,115 mm", Wheelbase: "2,530 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "150 km/h" },
       },
       {
         id: "414i-long", name: "414i Long", description: "The durable Hino 300 Series 414i Long offers extended cargo space for efficient, and demanding transport everywhere.",
-        image: "/images/300-series-414i.jpg", price: 1850000,
+        image: "/images/300-series-414i.jpg", price: 1850000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "6,430 x 1,715 x 2,115 mm", Wheelbase: "3,405 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "150 km/h" },
       },
       {
         id: "414i-6W", name: "414i 6W", description: "The 300 Series 414i 6W features a six-wheeler configuration that enhances load distribution and stability.",
-        image: "/images/300-series-414i.jpg", price: 1900000,
+        image: "/images/300-series-414i.jpg", price: 1900000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "6,320 x 1,965 x 2,115 mm", Wheelbase: "3,380 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "133 km/h" }
       },
       {
         id: "514", name: "514", description: "The versatile and robust Hino 300 Series 514 offers a customizable, strong base for diverse applications.",
-        image: "/images/300-series-514.jpg", price: 2000000,
+        image: "/images/300-series-514.jpg", price: 2000000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "4,680 x 1,695 x 2,130 mm", Wheelbase: "2,525 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "125 km/h" }
       },
       {
         id: "514-auto", name: "514 Auto", description: "The durable and efficient 514 Auto provides long-lasting urban performance with minimized fuel consumption.",
-        image: "/images/300-series-514.jpg", price: 2100000,
+        image: "/images/300-series-514.jpg", price: 2100000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "4,680 x 1,695 x 2,130 mm", Wheelbase: "2,525 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "125 km/h" }
       },
       {
         id: "616", name: "616", description: "The durable and flexible Hino 300 Series 616 provides a reliable, customizable base for diverse transport needs.",
-        image: "/images/300-series-616.png", price: 2200000,
+        image: "/images/300-series-616.png", price: 2200000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "6,500 kg", "Chassis Dimensions (L x W x H)": "6,120 x 1,995 x 2,205 mm", Wheelbase: "3,430 mm", "Max Output": "150 PS", "Max Torque": "420 Nm", "Max Speed": "123 km/h" },
       },
       {
         id: "716", name: "716", description: "The powerful and versatile Hino 300 Series 716 provides a robust, customizable base for enhanced business operations.",
-        image: "/images/300-series-616.png", price: 2300000,
+        image: "/images/300-series-616.png", price: 2300000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "6,500 kg", "Chassis Dimensions (L x W x H)": "6,120 x 1,995 x 2,240 mm", Wheelbase: "3,430 mm", "Max Output": "150 PS", "Max Torque": "420 Nm", "Max Speed": "132 km/h" },
       },
       {
         id: "716-double", name: "716 Double", description: "The Hino 300 Series 716 Double offers comfortable team transport and versatile customization for various commercial needs.",
-        image: "/images/300-series-616.png", price: 2400000,
+        image: "/images/300-series-616.png", price: 2400000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "6,500 kg", "Chassis Dimensions (L x W x H)": "6,740 x 1,995 x 2,255 mm", Wheelbase: "3,870 mm", "Max Output": "150 PS", "Max Torque": "420 Nm", "Max Speed": "132 km/h" },
       },
       {
         id: "814i", name: "814i", description: "The Hino 300 Series 814i's durable design is built to withstand everyday urban logistics challenges on daily use.",
-        image: "/images/300-series-616.png", price: 2500000,
+        image: "/images/300-series-616.png", price: 2500000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "7,500 kg", "Chassis Dimensions (L x W x H)": "6,320 x 1,965 x 2,155 mm", Wheelbase: "3,380 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "133 km/h" },
       },
       {
         id: "814i-extra-long", name: "814i Extra Long", description: "The innovative Hino 300 Series 814i Extra Long optimizes urban deliveries with extended body and efficient storage.",
-        image: "/images/300-series-616.png", price: 2600000,
+        image: "/images/300-series-616.png", price: 2600000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "7,500 kg", "Chassis Dimensions (L x W x H)": "7,185 x 1,965 x 2,150 mm", Wheelbase: "4,000 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "133 km/h" },
@@ -156,7 +157,7 @@ export const seriesData: SeriesData = {
       {
         id: "916", name: "916 Truck",
         description: "The Hino 300 Series 916 offers high payload capacity and reliability for demanding transport, with a robust, customizable design.",
-        image: "/images/300-series-616.png", price: 2700000,
+        image: "/images/300-series-616.png", price: 2700000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "8,500 kg", "Chassis Dimensions (L x W x H)": "7,250 x 2,055 x 2,260 mm", Wheelbase: "4,000 mm", "Max Output": "150 PS", "Max Torque": "420 Nm", "Max Speed": "125 km/h" },
@@ -170,7 +171,7 @@ export const seriesData: SeriesData = {
       {
         id: "1021-truck", name: "1021 Truck",
         description: "Powerful heavy-duty truck for industrial use",
-        image: "/images/500-series-1021.jpg", price: 3200000,
+        image: "/images/500-series-1021.jpg", price: 3200000, // Your provided price 2,450,000. Using slightly higher placeholder.
         bodyType: ["Aluminum Van", "Wing Van", "Dump Truck", "Garbage Dump Truck", "Water Tanker", "Refrigerated Van", "Stake Truck", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Multipurpose Van", "Dropside"],
         engine: "J08E-VD Diesel Engine",
         specifications: { "Gross Vehicle Weight": "10,400 kg", "Chassis Dimensions (L x W x H)": "8,395 x 2,190 x 2,470 mm", Wheelbase: "4,990 mm", "Max Output": "210 PS", "Max Torque": "637 Nm", "Max Speed": "115 km/h" },
@@ -178,7 +179,7 @@ export const seriesData: SeriesData = {
       {
         id: "1625-truck", name: "1625 Truck",
         description: "Heavy-duty truck for construction and logistics",
-        image: "/images/500-series-1625.jpg", price: 4500000,
+        image: "/images/500-series-1625.jpg", price: 4500000, // Your price 2,950,000
         bodyType: ["Aluminum Van", "Wing Van", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Refrigerated Van", "Stake Truck", "Rescue Truck", "Prison Van", "School Service", "Multipurpose Van", "Dropside"],
         engine: "J08E-WG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "16,000 kg", "Chassis Dimensions (L x W x H)": "7,785 x 2,490 x 2,750 mm", Wheelbase: "4,330 mm", "Max Output": "240 PS", "Max Torque": "716 Nm", "Max Speed": "104 km/h" },
@@ -186,56 +187,56 @@ export const seriesData: SeriesData = {
       {
         id: "1625-long-truck", name: "1625 Long Truck",
         description: "Heavy-duty truck for construction and logistics",
-        image: "/images/500-series-1625.jpg", price: 4600000,
+        image: "/images/500-series-1625.jpg", price: 4600000, // Your price 2,950,000
         bodyType: ["Aluminum Van", "Wing Van", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Refrigerated Van", "Stake Truck", "Rescue Truck", "Prison Van", "School Service", "Multipurpose Van", "Dropside"],
         engine: "J08E-WG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "16,000 kg", "Chassis Dimensions (L x W x H)": "9,485 x 2,490 x 2,745 mm", Wheelbase: "5,530 mm", "Max Output": "240 PS", "Max Torque": "716 Nm", "Max Speed": "104 km/h" },
       },
       {
         id: "1927-auto", name: "1927 Auto", description: "Heavy-duty truck for construction and logistics",
-        image: "/images/500-series-1625.jpg", price: 5000000,
+        image: "/images/500-series-1625.jpg", price: 5000000, // Your price 2,950,000
         bodyType: ["Aluminum Van", "Wing Van", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Refrigerated Van", "Stake Truck", "Rescue Truck", "Prison Van", "School Service", "Multipurpose Van", "Dropside"],
         engine: "J08E-WG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "18,200 kg", "Chassis Dimensions (L x W x H)": "8,835 x 2,490 x 2,765 mm", Wheelbase: "5,080 mm", "Max Output": "260 PS", "Max Torque": "794 Nm", "Max Speed": "100 km/h" },
       },
       {
         id: "2629-6x2", name: "2629 6x2", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 5500000,
+        image: "/images/500-series-2629.jpg", price: 5500000, // Your price 3,650,000
         bodyType: ["Dump Truck", "Garbage Dump Truck", "Water Tanker", "Stake Truck"],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "26,000 kg", "Chassis Dimensions (L x W x H)": "11,935 x 2,490 x 2,770 mm", Wheelbase: "6,130 + 1,350 mm", "Max Output": "280 PS", "Max Torque": "824 Nm", "Max Speed": "111 km/h" },
       },
       {
         id: "2629-6x4", name: "2629 6x4", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 5700000,
+        image: "/images/500-series-2629.jpg", price: 5700000, // Your price 3,650,000
         bodyType: ["Dump Truck", "Garbage Dump Truck", "Water Tanker", "Stake Truck"],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "28,000 kg", "Chassis Dimensions (L x W x H)": "9,485 x 2,490 x 2,765 mm", Wheelbase: "4,630 + 1,350 mm", "Max Output": "280 PS", "Max Torque": "824 Nm", "Max Speed": "98 km/h" },
       },
       {
         id: "2836", name: "2836", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 6000000,
+        image: "/images/500-series-2629.jpg", price: 6000000, // Your price 3,650,000
         bodyType: ["Dump Truck", "Garbage Dump Truck", "Water Tanker", "Stake Truck"],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "28,000 kg", "Chassis Dimensions (L x W x H)": "9,485 x 2,490 x 2,905 mm", Wheelbase: "4,530 + 1,350 mm", "Max Output": "350 PS", "Max Torque": "1,422 Nm", "Max Speed": "117 km/h" },
       },
       {
         id: "2836-dump", name: "2836 Dump", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 6200000,
+        image: "/images/500-series-2629.jpg", price: 6200000, // Your price 3,650,000
         bodyType: ["Dump Truck", "Garbage Dump Truck", "Water Tanker"],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "28,000 kg", "Chassis Dimensions (L x W x H)": "7,435 x 2,490 x 2,910 mm", Wheelbase: "3,480 + 1,350 mm", "Max Output": "350 PS", "Max Torque": "1,422 Nm", "Max Speed": "109 km/h" },
       },
       {
         id: "1735-tractor", name: "1735 Tractor", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 0,
+        image: "/images/500-series-2629.jpg", price: 3650000, // Your price
         bodyType: [],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "18,000 kg", "Chassis Dimensions (L x W x H)": "5,995 x 2,490 x 2,890 mm", Wheelbase: "3,630 mm", "Max Output": "350 PS", "Max Torque": "1,422 Nm", "Max Speed": "118 km/h" },
       },
       {
         id: "2635-tractor", name: "2635 Tractor", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 0,
+        image: "/images/500-series-2629.jpg", price: 3650000, // Your price
         bodyType: [],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "26,000 kg", "Chassis Dimensions (L x W x H)": "7,045 x 2,490 x 2,910 mm", Wheelbase: "3,480 + 1,350 mm", "Max Output": "350 PS", "Max Torque": "1,422 Nm", "Max Speed": "117 km/h" },
@@ -325,96 +326,94 @@ export const bodyCategories: string[] = [
 ];
 
 // --- CONFIGURATION FOR CUSTOM MEASUREMENT TYPES PER CATEGORY ---
-// 2. Updated "Custom (Specify)" to use 'detailed'
 export const categoryCustomMeasurementConfig: Record<string, CustomMeasurementType> = {
   "Dump Truck": "volume", "Garbage Dump Truck": "volume", "Water Tanker": "volume",
   "Multipurpose Van": "lwh", "Dropside": "lwh", "Aluminum Van": "lwh", "Wing Van": "lwh",
   "Refrigerated Van": "lwh", "Fire Truck": "lwh", "Stake Truck": "lwh", "Rescue Truck": "lwh",
   "Prison Van": "lwh", "School Service": "lwh",
-  "Custom (Specify)": "detailed", // <<< MODIFIED HERE
+  "Custom (Specify)": "detailed",
 };
 
 // --- CONSTANTS FOR CUSTOM BODIES ---
-const CUSTOM_PRICE_TEXT = "Price varies depending on size";
-const CUSTOM_BODY_IMAGE = "/images/bodies/custom-placeholder.jpg";
+export const CUSTOM_PRICE_TEXT = "Price varies depending on size";
+export const CUSTOM_BODY_IMAGE = "/images/bodies/custom-placeholder.jpg";
 
 // --- BODY TYPES DATA (Standard Variants + Category-Specific Custom Options) ---
+// !!! CRITICAL: REVIEW AND UPDATE ALL 'price' VALUES FOR STANDARD BODIES !!!
 export const bodyTypes: BodyTypes = {
   "Multipurpose Van": [
-    { id: "mpv-std-10", name: "10ft Multipurpose Van", description: "Versatile 10ft van body.", image: "/images/bodies/multipurpose-van.jpg", compatibleSeries: ["200-series", "300-series"], price: 150000, specifications: { Length: "10 feet", Material: "Composite" } },
-    { id: "mpv-std-14", name: "14ft Multipurpose Van", description: "Versatile 14ft van body.", image: "/images/bodies/multipurpose-van.jpg", compatibleSeries: ["300-series", "500-series"], price: 180000, specifications: { Length: "14 feet", Material: "Composite" } },
+    { id: "mpv-std-10", name: "10ft Multipurpose Van", description: "Versatile 10ft van body.", image: "/images/bodies/multipurpose-van.jpg", compatibleSeries: ["200-series", "300-series"], price: 150000, specifications: { Length: "10 feet", Material: "Composite" }, isCustom: false },
+    { id: "mpv-std-14", name: "14ft Multipurpose Van", description: "Versatile 14ft van body.", image: "/images/bodies/multipurpose-van.jpg", compatibleSeries: ["300-series", "500-series"], price: 180000, specifications: { Length: "14 feet", Material: "Composite" }, isCustom: false },
     { id: "custom-multipurpose-van", name: "Custom Multipurpose Van", description: "Specify dimensions for a custom van.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Multipurpose Van" }
   ],
   "Dropside": [
-    { id: "dropside-10", name: "10ft Dropside", description: "10ft dropside body.", image: "/images/bodies/dropside-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 120000, specifications: { Length: "10 feet", Material: "Steel & Aluminum" } },
-    { id: "dropside-14", name: "14ft Dropside", description: "14ft dropside body.", image: "/images/bodies/dropside-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 140000, specifications: { Length: "14 feet", Material: "Steel & Aluminum" } },
+    { id: "dropside-10", name: "10ft Dropside", description: "10ft dropside body.", image: "/images/bodies/dropside-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 120000, specifications: { Length: "10 feet", Material: "Steel & Aluminum" }, isCustom: false },
+    { id: "dropside-14", name: "14ft Dropside", description: "14ft dropside body.", image: "/images/bodies/dropside-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 140000, specifications: { Length: "14 feet", Material: "Steel & Aluminum" }, isCustom: false },
     { id: "custom-dropside", name: "Custom Dropside", description: "Specify dimensions for a custom dropside.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Dropside" }
   ],
   "Aluminum Van": [
-    { id: "alvan-10", name: "10ft Aluminum Van", description: "10ft aluminum van body.", image: "/images/bodies/aluminum-van-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 170000, specifications: { Length: "10 feet", Material: "Aluminum"} },
-    { id: "alvan-14", name: "14ft Aluminum Van", description: "14ft aluminum van body.", image: "/images/bodies/aluminum-van-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 210000, specifications: { Length: "14 feet", Material: "Aluminum"} },
+    { id: "alvan-10", name: "10ft Aluminum Van", description: "10ft aluminum van body.", image: "/images/bodies/aluminum-van-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 170000, specifications: { Length: "10 feet", Material: "Aluminum"}, isCustom: false },
+    { id: "alvan-14", name: "14ft Aluminum Van", description: "14ft aluminum van body.", image: "/images/bodies/aluminum-van-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 210000, specifications: { Length: "14 feet", Material: "Aluminum"}, isCustom: false },
     { id: "custom-aluminum-van", name: "Custom Aluminum Van", description: "Specify dimensions for a custom aluminum van.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Aluminum Van" }
   ],
   "Wing Van": [
-    { id: "wingvan-12", name: "12ft Wing Van", description: "12ft wing van body.", image: "/images/bodies/wing-12.jpg", compatibleSeries: ["200-series", "300-series"], price: 250000, specifications: { Length: "12 feet", Material: "Aluminum", "Wing Type": "Manual"} },
-    { id: "wingvan-16", name: "16ft Wing Van", description: "16ft wing van body.", image: "/images/bodies/wing-16.jpg", compatibleSeries: ["300-series", "500-series"], price: 300000, specifications: { Length: "16 feet", Material: "Aluminum", "Wing Type": "Manual/Hydraulic"} },
+    { id: "wingvan-12", name: "12ft Wing Van", description: "12ft wing van body.", image: "/images/bodies/wing-12.jpg", compatibleSeries: ["200-series", "300-series"], price: 250000, specifications: { Length: "12 feet", Material: "Aluminum", "Wing Type": "Manual"}, isCustom: false },
+    { id: "wingvan-16", name: "16ft Wing Van", description: "16ft wing van body.", image: "/images/bodies/wing-16.jpg", compatibleSeries: ["300-series", "500-series"], price: 300000, specifications: { Length: "16 feet", Material: "Aluminum", "Wing Type": "Manual/Hydraulic"}, isCustom: false },
     { id: "custom-wing-van", name: "Custom Wing Van", description: "Specify dimensions for a custom wing van.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Wing Van" }
   ],
   "Refrigerated Van": [
-    { id: "rfv-10", name: "10ft Refrigerated Van", description: "10ft refrigerated van.", image: "/images/bodies/freezer-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 350000, specifications: { Length: "10 feet", "Temperature Range": "-20°C to +5°C"} },
-    { id: "rfv-14", name: "14ft Refrigerated Van", description: "14ft refrigerated van.", image: "/images/bodies/freezer-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 420000, specifications: { Length: "14 feet", "Temperature Range": "-20°C to +5°C"} },
+    { id: "rfv-10", name: "10ft Refrigerated Van", description: "10ft refrigerated van.", image: "/images/bodies/freezer-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 350000, specifications: { Length: "10 feet", "Temperature Range": "-20°C to +5°C"}, isCustom: false },
+    { id: "rfv-14", name: "14ft Refrigerated Van", description: "14ft refrigerated van.", image: "/images/bodies/freezer-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 420000, specifications: { Length: "14 feet", "Temperature Range": "-20°C to +5°C"}, isCustom: false },
     { id: "custom-refrigerated-van", name: "Custom Refrigerated Van", description: "Specify dimensions for a custom refrigerated van.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Refrigerated Van" }
   ],
   "Dump Truck": [
-    { id: "dt-small", name: "Small Dump Truck (3-5 cu.m)", description: "For 200/300 series.", image: "/images/bodies/dump-small.jpg", compatibleSeries: ["200-series", "300-series"], price: 280000, specifications: { Capacity: "3-5 cubic meters", Material: "High-tensile steel" } },
-    { id: "dt-large", name: "Large Dump Truck (6-10 cu.m)", description: "For 500 series.", image: "/images/bodies/dump-6.jpg", compatibleSeries: ["500-series"], price: 350000, specifications: { Capacity: "6-10 cubic meters", Material: "High-tensile steel" } },
+    { id: "dt-small", name: "Small Dump Truck (3-5 cu.m)", description: "For 200/300 series.", image: "/images/bodies/dump-small.jpg", compatibleSeries: ["200-series", "300-series"], price: 280000, specifications: { Capacity: "3-5 cubic meters", Material: "High-tensile steel" }, isCustom: false },
+    { id: "dt-large", name: "Large Dump Truck (6-10 cu.m)", description: "For 500 series.", image: "/images/bodies/dump-6.jpg", compatibleSeries: ["500-series"], price: 350000, specifications: { Capacity: "6-10 cubic meters", Material: "High-tensile steel" }, isCustom: false },
     { id: "custom-dump-truck", name: "Custom Dump Truck", description: "Specify volume for a custom dump truck.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "volume", specifications: {}, categoryForMeasurement: "Dump Truck" }
   ],
   "Garbage Dump Truck": [
-    { id: "gdt-compact", name: "Compact Garbage Dump Truck", description: "For 200/300 series.", image: "/images/bodies/garbage-dump-compact.jpg", compatibleSeries: ["200-series", "300-series"], price: 300000, specifications: { Capacity: "Varies", Compaction: "Optional" } },
-    { id: "gdt-large", name: "Large Garbage Dump Truck", description: "For 500 series.", image: "/images/bodies/garbage-dump-large.jpg", compatibleSeries: ["500-series"], price: 400000, specifications: { Capacity: "Varies", Compaction: "Standard" } },
+    { id: "gdt-compact", name: "Compact Garbage Dump Truck", description: "For 200/300 series.", image: "/images/bodies/garbage-dump-compact.jpg", compatibleSeries: ["200-series", "300-series"], price: 300000, specifications: { Capacity: "Varies", Compaction: "Optional" }, isCustom: false },
+    { id: "gdt-large", name: "Large Garbage Dump Truck", description: "For 500 series.", image: "/images/bodies/garbage-dump-large.jpg", compatibleSeries: ["500-series"], price: 400000, specifications: { Capacity: "Varies", Compaction: "Standard" }, isCustom: false },
     { id: "custom-garbage-dump-truck", name: "Custom Garbage Dump Truck", description: "Specify volume for a custom garbage truck.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "volume", specifications: {}, categoryForMeasurement: "Garbage Dump Truck" }
   ],
   "Fire Truck": [
-    { id: "ft-light", name: "Light Duty Fire Truck", description: "For 200/300 series.", image: "/images/bodies/fire-truck-light.jpg", compatibleSeries: ["200-series", "300-series"], price: 900000, specifications: { "Water Tank Capacity": "500-1000L" } },
-    { id: "ft-medium", name: "Medium Duty Fire Truck", description: "For 500 series.", image: "/images/bodies/fire-truck-medium.jpg", compatibleSeries: ["500-series"], price: 1500000, specifications: { "Water Tank Capacity": "1500-3000L" } },
+    { id: "ft-light", name: "Light Duty Fire Truck", description: "For 200/300 series.", image: "/images/bodies/fire-truck-light.jpg", compatibleSeries: ["200-series", "300-series"], price: 900000, specifications: { "Water Tank Capacity": "500-1000L" }, isCustom: false },
+    { id: "ft-medium", name: "Medium Duty Fire Truck", description: "For 500 series.", image: "/images/bodies/fire-truck-medium.jpg", compatibleSeries: ["500-series"], price: 1500000, specifications: { "Water Tank Capacity": "1500-3000L" }, isCustom: false },
     { id: "custom-fire-truck", name: "Custom Fire Truck", description: "Specify dimensions for a custom fire truck.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Fire Truck" }
   ],
   "Water Tanker": [
-    { id: "wt-2k", name: "2000L Water Tanker", description: "For 200/300 series.", image: "/images/bodies/tanker-2k.jpg", compatibleSeries: ["200-series", "300-series"], price: 200000, specifications: { Capacity: "2000 liters" } },
-    { id: "wt-4k", name: "4000L Water Tanker", description: "For 300/500 series.", image: "/images/bodies/tanker-4.jpg", compatibleSeries: ["300-series", "500-series"], price: 280000, specifications: { Capacity: "4000 liters" } },
+    { id: "wt-2k", name: "2000L Water Tanker", description: "For 200/300 series.", image: "/images/bodies/tanker-2k.jpg", compatibleSeries: ["200-series", "300-series"], price: 200000, specifications: { Capacity: "2000 liters" }, isCustom: false },
+    { id: "wt-4k", name: "4000L Water Tanker", description: "For 300/500 series.", image: "/images/bodies/tanker-4.jpg", compatibleSeries: ["300-series", "500-series"], price: 280000, specifications: { Capacity: "4000 liters" }, isCustom: false },
     { id: "custom-water-tanker", name: "Custom Water Tanker", description: "Specify volume for a custom water tanker.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "volume", specifications: {}, categoryForMeasurement: "Water Tanker" }
   ],
   "Stake Truck": [
-    { id: "st-10", name: "10ft Stake Truck", description: "10ft stake truck.", image: "/images/bodies/stake-truck-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 130000, specifications: { Length: "10 feet" } },
-    { id: "st-14", name: "14ft Stake Truck", description: "14ft stake truck.", image: "/images/bodies/stake-truck-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 160000, specifications: { Length: "14 feet" } },
+    { id: "st-10", name: "10ft Stake Truck", description: "10ft stake truck.", image: "/images/bodies/stake-truck-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 130000, specifications: { Length: "10 feet" }, isCustom: false },
+    { id: "st-14", name: "14ft Stake Truck", description: "14ft stake truck.", image: "/images/bodies/stake-truck-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 160000, specifications: { Length: "14 feet" }, isCustom: false },
     { id: "custom-stake-truck", name: "Custom Stake Truck", description: "Specify dimensions for a custom stake truck.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Stake Truck" }
   ],
   "Rescue Truck": [
-    { id: "rt-std", name: "Standard Rescue Truck", description: "Equipped for rescue.", image: "/images/bodies/rescue-truck.jpg", compatibleSeries: ["300-series", "500-series"], price: 750000, specifications: { Compartments: "Multiple" } },
+    { id: "rt-std", name: "Standard Rescue Truck", description: "Equipped for rescue.", image: "/images/bodies/rescue-truck.jpg", compatibleSeries: ["300-series", "500-series"], price: 750000, specifications: { Compartments: "Multiple" }, isCustom: false },
     { id: "custom-rescue-truck", name: "Custom Rescue Truck", description: "Specify dimensions for a custom rescue truck.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Rescue Truck" }
   ],
   "Prison Van": [
-    { id: "pv-std", name: "Standard Prison Van", description: "Secure transport.", image: "/images/bodies/prison-van.jpg", compatibleSeries: ["300-series", "500-series"], price: 600000, specifications: { Security: "Reinforced" } },
+    { id: "pv-std", name: "Standard Prison Van", description: "Secure transport.", image: "/images/bodies/prison-van.jpg", compatibleSeries: ["300-series", "500-series"], price: 600000, specifications: { Security: "Reinforced" }, isCustom: false },
     { id: "custom-prison-van", name: "Custom Prison Van", description: "Specify dimensions for a custom prison van.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Prison Van" }
   ],
   "School Service": [
-    { id: "ss-std", name: "Standard School Service", description: "Safe school transport.", image: "/images/bodies/school-service.jpg", compatibleSeries: ["300-series", "500-series"], price: 550000, specifications: { Seating: "20-30" } },
+    { id: "ss-std", name: "Standard School Service", description: "Safe school transport.", image: "/images/bodies/school-service.jpg", compatibleSeries: ["300-series", "500-series"], price: 550000, specifications: { Seating: "20-30" }, isCustom: false },
     { id: "custom-school-service", name: "Custom School Service", description: "Specify dimensions for a custom school service.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "School Service" }
   ],
-  // 3. Updated "Custom (Specify)" body variant
   "Custom (Specify)": [
     {
-      id: "generic-custom-detailed-body", // Changed ID for clarity, optional
-      name: "Custom Body",
-      description: "Specify custom dimensions (Body Type, Length, Width, Height, Cubic Meters, Liters).", // <<< MODIFIED DESCRIPTION
+      id: "generic-custom-detailed-body", name: "Custom Body",
+      description: "Specify custom dimensions (Body Type, Length, Width, Height, Cubic Meters, Liters).",
       image: CUSTOM_BODY_IMAGE,
-      compatibleSeries: ["200-series", "300-series", "500-series"], // Ensure this is correct for your app
+      compatibleSeries: ["200-series", "300-series", "500-series"],
       price: CUSTOM_PRICE_TEXT,
       isCustom: true,
-      customMeasurementType: "detailed", // <<< MODIFIED HERE
+      customMeasurementType: "detailed",
       specifications: {},
-      categoryForMeasurement: "Custom (Specify)" // This helps identify it if customMeasurementType is missing
+      categoryForMeasurement: "Custom (Specify)"
     }
   ]
 };
@@ -450,24 +449,21 @@ export function getAvailableBodyCategoriesForSeries(seriesSlug: string): string[
     }
   });
   Object.entries(bodyTypes).forEach(([categoryName, variants]) => {
-    if (categoryName === "Custom (Specify)") return; // Handled separately to ensure it's last if present
+    if (categoryName === "Custom (Specify)") return;
     if (bodyCategories.includes(categoryName) && variants.some(v => v.compatibleSeries.includes(seriesSlug))) {
       relevantCategories.add(categoryName);
     }
   });
   const sortedCategories = Array.from(relevantCategories).sort();
-
-  // Check if "Custom (Specify)" should be added
   const customSpecifyCategoryName = "Custom (Specify)";
   const customSpecifyVariants = bodyTypes[customSpecifyCategoryName];
   if (customSpecifyVariants && customSpecifyVariants.some(v => v.compatibleSeries.includes(seriesSlug))) {
-      if (!sortedCategories.includes(customSpecifyCategoryName)) { // Add if not already there (it shouldn't be due to above filter)
+      if (!sortedCategories.includes(customSpecifyCategoryName)) {
           sortedCategories.push(customSpecifyCategoryName);
       }
   }
   return sortedCategories;
 }
-
 
 export function getBodiesForSelectedCategory(
   selectedCategoryName: string,
@@ -478,42 +474,29 @@ export function getBodiesForSelectedCategory(
   let resultingBodies: BodyVariant[] = [];
 
   if (selectedSeriesSlug === 'buses' || selectedSeriesSlug === 'puvs') {
-    return []; // Buses and PUVs don't have these body types
+    return [];
   }
 
   if (selectedCategoryName === "All Categories") {
     Object.entries(bodyTypes).forEach(([categoryKey, variants]) => {
-      // Skip "Custom (Specify)" here, will be added separately if applicable
       if (categoryKey === "Custom (Specify)" || !bodyCategories.includes(categoryKey)) return;
-
       variants.forEach(variant => {
-        if (variant.isCustom) return; // Don't add other custom types in "All Categories" view initially
-        if (!variant.compatibleSeries.includes(selectedSeriesSlug)) return;
-        // If a specific model is selected, ensure its bodyType list (from chassis data) includes this category
-        if (model && model.bodyType && !model.bodyType.includes(categoryKey)) return;
+        if (variant.isCustom && variant.id !== "generic-custom-detailed-body") return; // Only show generic custom here
+        if (variant.id === "generic-custom-detailed-body" && !variant.compatibleSeries.includes(selectedSeriesSlug)) return; // Check compatibility for generic custom
+        if (variant.id !== "generic-custom-detailed-body" && !variant.compatibleSeries.includes(selectedSeriesSlug)) return;
+
+        if (model && model.bodyType && !variant.isCustom && !model.bodyType.includes(categoryKey) ) return;
 
         if (!resultingBodies.some(b => b.id === variant.id)) {
           resultingBodies.push(variant);
         }
       });
     });
-    // Add the "Custom (Specify)" -> "Custom Body" if compatible
-    const customSpecifyVariants = bodyTypes["Custom (Specify)"];
-    if (customSpecifyVariants) {
-        customSpecifyVariants.forEach(variant => {
-            if (variant.compatibleSeries.includes(selectedSeriesSlug)) {
-                 if (!resultingBodies.some(b => b.id === variant.id)) {
-                    resultingBodies.push(variant);
-                 }
-            }
-        });
-    }
-
   } else if (selectedCategoryName === "Custom (Specify)") {
-    const customSpecifyVariants = bodyTypes["Custom (Specify)"];
-    if (customSpecifyVariants) {
-        customSpecifyVariants.forEach(variant => {
-            if (variant.compatibleSeries.includes(selectedSeriesSlug)) {
+    const genericCustomVariants = bodyTypes["Custom (Specify)"];
+    if (genericCustomVariants) {
+        genericCustomVariants.forEach(variant => {
+            if (variant.id === "generic-custom-detailed-body" && variant.compatibleSeries.includes(selectedSeriesSlug)) {
                 resultingBodies.push(variant);
             }
         });
@@ -522,40 +505,28 @@ export function getBodiesForSelectedCategory(
     const variantsForCategory = bodyTypes[selectedCategoryName] || [];
     variantsForCategory.forEach(variant => {
       if (!variant.compatibleSeries.includes(selectedSeriesSlug)) return;
-      // For standard bodies, if a model is selected, ensure its chassis `bodyType` list allows this category.
-      // For custom bodies within a category (e.g., "Custom Dropside"), allow them regardless of model.bodyType list
-      // as long as the category itself is generally compatible with the series.
       if (!variant.isCustom && model && model.bodyType && !model.bodyType.includes(selectedCategoryName)) return;
-
       resultingBodies.push(variant);
     });
   }
-  // Sort: standard bodies first, then custom bodies, then alphabetically
   return resultingBodies.sort((a, b) => {
     if (a.isCustom && !b.isCustom) return 1;
     if (!a.isCustom && b.isCustom) return -1;
-    // If both are custom, or both are standard, sort by name
-    // Special sort for "Custom Body" from "Custom (Specify)" to appear last among customs if desired
     if (a.id === "generic-custom-detailed-body" && b.isCustom) return 1;
     if (b.id === "generic-custom-detailed-body" && a.isCustom) return -1;
     return a.name.localeCompare(b.name);
   });
 }
 
-
 export function getCompatibleBodies(seriesSlug: string, modelId: string): BodyVariant[] {
   const model = getModelData(seriesSlug, modelId);
-  if (!model || !model.bodyType) return []; // No bodyType specified for the model
-
+  if (!model || !model.bodyType) return [];
   const compatibleModelBodies: BodyVariant[] = [];
-  model.bodyType.forEach((categoryName: string) => { // categoryName from model.bodyType
-    const bodiesInCategory = bodyTypes[categoryName as keyof typeof bodyTypes] || [];
-    bodiesInCategory.forEach((bodyVariant: BodyVariant) => {
-      // Include standard (non-custom) bodies if compatible with series
-      if (!bodyVariant.isCustom && bodyVariant.compatibleSeries.includes(seriesSlug)) {
-        if (!compatibleModelBodies.some((b) => b.id === bodyVariant.id)) {
-          compatibleModelBodies.push(bodyVariant);
-        }
+  model.bodyType.forEach((bodyType: string) => {
+    const bodies = bodyTypes[bodyType as keyof typeof bodyTypes] || [];
+    bodies.forEach((body: BodyVariant) => {
+      if (!body.isCustom && body.compatibleSeries.includes(seriesSlug) && !compatibleModelBodies.some((b) => b.id === body.id)) {
+        compatibleModelBodies.push(body);
       }
     });
   });

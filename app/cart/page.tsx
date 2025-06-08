@@ -17,8 +17,11 @@ import {
   ArrowLeft,
   Download,
   FileText,
+  Printer,
+  CheckCircle,
 } from "lucide-react";
-import { useCart, CartItem } from "@/context/cart-context";
+import { useCart } from "@/context/cart-context";
+import { CartItem } from "@/context/cart-context";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
@@ -29,15 +32,19 @@ import {
 } from "@/components/ui/dialog";
 import React from "react";
 
+// Interfaces
 interface OrderExportItem {
-  /* ... as before ... */ id: string | number;
+  id: string | number;
   name: string;
   price: number | string;
   quantity: number;
   image?: string;
+  selectedBody?: CartItem["selectedBody"];
+  type: "chassis" | "body" | "bus" | "puv";
 }
 interface OrderDataForExport {
-  /* ... as before ... */ orderDate: string;
+  orderId: string;
+  orderDate: string;
   customer: {
     fullName: string;
     email: string;
@@ -50,12 +57,22 @@ interface OrderDataForExport {
   total: string;
 }
 
-const CUSTOM_BODY_IMAGE_PLACEHOLDER = "/custom-body-placeholder.png"; // Make sure this image exists in your public folder
+const CUSTOM_BODY_IMAGE_PLACEHOLDER = "/images/bodies/custom-placeholder.jpg";
+const CUSTOM_PRICE_TEXT = "Price varies";
+
+const getDisplayName = (item: {
+  name: string;
+  type: "chassis" | "body" | "bus" | "puv";
+}): string => {
+  if (item.type === "chassis" && item.name.includes(" with ")) {
+    return item.name.split(" with ")[0];
+  }
+  return item.name;
+};
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
   const { toast } = useToast();
-  // ... other state ...
   const [showFormDialog, setShowFormDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
@@ -66,21 +83,27 @@ export default function CartPage() {
     city: "",
     province: "",
   });
+  const [lastSuccessfulOrder, setLastSuccessfulOrder] =
+    useState<OrderDataForExport | null>(null);
+
+  const formatDisplayPrice = (
+    priceInput: number | string | undefined
+  ): string => {
+    if (typeof priceInput === "number")
+      return `₱${priceInput.toLocaleString()}`;
+    if (typeof priceInput === "string") return priceInput;
+    return "N/A";
+  };
 
   const calculateTotalPriceDisplay = (): string => {
-    /* ... same logic as before ... */
     let numericTotal = 0;
     let hasVariablePriceItem = false;
     cart.forEach((item: CartItem) => {
-      if (item.type === "chassis") {
+      if (item.type === "chassis")
+        numericTotal += (item.price as number) * item.quantity;
+      if (item.selectedBody?.isCustom) hasVariablePriceItem = true;
+      else if (item.type === "body" && typeof item.price === "number")
         numericTotal += item.price * item.quantity;
-      }
-      if (
-        item.type === "body" &&
-        item.selectedBody?.priceText?.toLowerCase().includes("varies")
-      ) {
-        hasVariablePriceItem = true;
-      }
     });
     if (hasVariablePriceItem) {
       return (
@@ -91,20 +114,25 @@ export default function CartPage() {
     return `₱${numericTotal.toLocaleString()}`;
   };
   const totalPriceDisplay = calculateTotalPriceDisplay();
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    /* ... */ const { name, value } = e.target;
+    const { name, value } = e.target;
     setCustomerInfo((prev) => ({ ...prev, [name]: value }));
   };
-  const generatePDF = (orderData: OrderDataForExport): string => {
-    /* ... same logic ... */
+
+  const generatePDFDoc = (orderData: OrderDataForExport): jsPDF => {
     const pdf = new jsPDF();
     let yPosition = 20;
+
+    // --- Header ---
     pdf.setFontSize(20);
     pdf.text("Hino Motors Philippines", 105, yPosition, { align: "center" });
-    yPosition += 10;
+    yPosition += 8;
     pdf.setFontSize(14);
-    pdf.text("Order Summary", 105, yPosition, { align: "center" });
-    yPosition += 10;
+    pdf.text(`Order Receipt - #${orderData.orderId}`, 105, yPosition, {
+      align: "center",
+    });
+    yPosition += 8;
     pdf.setFontSize(12);
     pdf.text(
       `Date: ${format(new Date(orderData.orderDate), "PPP")}`,
@@ -113,6 +141,8 @@ export default function CartPage() {
       { align: "center" }
     );
     yPosition += 20;
+
+    // --- Customer Info ---
     pdf.setFontSize(16);
     pdf.text("Customer Information", 20, yPosition);
     yPosition += 10;
@@ -129,176 +159,249 @@ export default function CartPage() {
       yPosition
     );
     yPosition += 20;
+
+    // --- Order Items Table ---
     pdf.setFontSize(16);
     pdf.text("Order Items", 20, yPosition);
     yPosition += 10;
+
+    // Define column positions
+    const itemX = 20;
+    const qtyX = 145;
+    const totalX = 190;
+
     pdf.setFontSize(12);
-    pdf.text("Item", 20, yPosition);
-    pdf.text("Price", 100, yPosition);
-    pdf.text("Qty", 130, yPosition);
-    pdf.text("Total", 160, yPosition);
+    pdf.text("Item", itemX, yPosition);
+    pdf.text("Qty", qtyX, yPosition, { align: "right" });
+    pdf.text("Total", totalX, yPosition, { align: "right" });
     yPosition += 5;
-    pdf.line(20, yPosition, 190, yPosition);
-    yPosition += 10;
+    pdf.line(20, yPosition, 190, yPosition); // Line under headers
+    yPosition += 8;
+
     orderData.items.forEach((item) => {
       if (yPosition > 270) {
+        // Add new page if content overflows
         pdf.addPage();
         yPosition = 20;
       }
-      const priceText =
-        typeof item.price === "number"
-          ? `₱${item.price.toLocaleString()}`
-          : String(item.price);
-      const totalText =
-        typeof item.price === "number"
-          ? `₱${(item.price * item.quantity).toLocaleString()}`
-          : String(item.price);
-      pdf.text(
-        item.name.substring(0, 35) + (item.name.length > 35 ? "..." : ""),
-        20,
-        yPosition
-      );
-      pdf.text(priceText, 100, yPosition);
-      pdf.text(item.quantity.toString(), 130, yPosition);
-      pdf.text(totalText, 160, yPosition);
+
+      const displayName = getDisplayName(item);
+      let totalText: string;
+
+      if (
+        item.type === "chassis" ||
+        (item.type === "body" && !item.selectedBody?.isCustom)
+      ) {
+        totalText = `₱${(
+          (item.price as number) * item.quantity
+        ).toLocaleString()}`;
+      } else {
+        totalText = CUSTOM_PRICE_TEXT;
+      }
+
+      pdf.text(displayName, itemX, yPosition);
+      pdf.text(item.quantity.toString(), qtyX, yPosition, { align: "right" });
+      pdf.text(totalText, totalX, yPosition, { align: "right" });
       yPosition += 8;
     });
-    yPosition += 10;
-    pdf.line(20, yPosition, 190, yPosition);
-    yPosition += 10;
-    pdf.setFontSize(14);
-    pdf.text(`Total Amount: ${orderData.total}`, 160, yPosition, {
-      align: "right",
-    });
-    return pdf.output("datauristring").split(",")[1];
-  };
-  const sendEmailWithPDF = async (
-    orderData: OrderDataForExport,
-    pdfBase64: string
-  ): Promise<boolean> => {
-    /* ... same logic ... */
-    try {
-      emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
-      if (
-        !process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ||
-        !process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ||
-        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
-      ) {
-        throw new Error("Missing EmailJS configuration");
-      }
-      const businessEmailParams = {
-        to_email: "shantijop1234567890@gmail.com",
-        to_name: "Hino Motors Philippines",
-        from_name: orderData.customer.fullName,
-        from_email: orderData.customer.email,
-        subject: `New Order from ${orderData.customer.fullName}`,
-        message: `New Order Received:\n\nCustomer Information:\nName: ${
-          orderData.customer.fullName
-        }\nEmail: ${orderData.customer.email}\nPhone: ${
-          orderData.customer.phone
-        }\nAddress: ${orderData.customer.barangay}, ${
-          orderData.customer.city
-        }, ${orderData.customer.province}\n\nOrder Details:\n${orderData.items
-          .map(
-            (item) =>
-              `- ${item.name} x${item.quantity} = ${
-                typeof item.price === "number"
-                  ? `₱${(item.price * item.quantity).toLocaleString()}`
-                  : `${String(item.price)}`
-              }`
-          )
-          .join("\n")}\n\nTotal Amount: ${
-          orderData.total
-        }\nOrder Date: ${format(new Date(orderData.orderDate), "PPP")}`,
-        attachment: pdfBase64,
-        filename: `Order_${format(
-          new Date(orderData.orderDate),
-          "yyyy-MM-dd"
-        )}_${orderData.customer.fullName.replace(/\s+/g, "_")}.pdf`,
-      };
-      const response = await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
-        businessEmailParams
-      );
-      if (response.status !== 200)
-        throw new Error(`EmailJS responded with status: ${response.status}`);
-      return true;
-    } catch (error: unknown) {
-      let errorMessage = "Failed to send email";
-      if (error instanceof Error) errorMessage = error.message;
-      else if (typeof error === "string") errorMessage = error;
-      console.error("Email sending failed:", error);
-      throw new Error(errorMessage);
-    }
-  };
-  const generatePrintableHTML = (
-    orderData: OrderDataForExport,
-    forMobile: boolean
-  ): string => {
-    return "";
-  };
-  const handleMobilePrint = (orderData: OrderDataForExport) => {};
-  const handleDesktopPrint = (orderData: OrderDataForExport) => {};
 
+    // --- Totals ---
+    yPosition += 5;
+    pdf.line(120, yPosition, 190, yPosition); // Line above total
+    yPosition += 8;
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Order Total", 120, yPosition);
+    pdf.text(orderData.total, 190, yPosition, { align: "right" });
+    pdf.setFont("helvetica", "normal");
+
+    return pdf;
+  };
+
+  // MODIFIED FUNCTION
   const handleFormSubmit = async (e: FormEvent) => {
-    /* ... same logic, ensure exportPrice for body uses priceText ... */
     e.preventDefault();
     setIsProcessing(true);
-    if (
-      !customerInfo.fullName ||
-      !customerInfo.email ||
-      !customerInfo.phone ||
-      !customerInfo.barangay ||
-      !customerInfo.city ||
-      !customerInfo.province
-    ) {
-      toast({ title: "Missing information", variant: "destructive" });
-      setIsProcessing(false);
-      return;
-    }
-    const itemsForExport: OrderExportItem[] = cart.map((item: CartItem) => {
-      let exportPrice: string | number = item.price;
-      if (item.type === "body" && item.selectedBody?.priceText) {
-        // Prioritize priceText for export
-        exportPrice = item.selectedBody.priceText;
-      }
-      return {
-        id: item.id,
-        name: item.name,
-        price: exportPrice,
-        quantity: item.quantity,
-        image: item.image || item.selectedBody?.image,
-      };
-    });
+
+    const orderId = `HMP-${Date.now().toString().slice(-6)}`;
+
+    const itemsForExport: OrderExportItem[] = cart.map((item: CartItem) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image || item.selectedBody?.image,
+      selectedBody: item.selectedBody,
+      type: item.type,
+    }));
+
     const orderData: OrderDataForExport = {
+      orderId,
       customer: customerInfo,
       items: itemsForExport,
       total: totalPriceDisplay,
       orderDate: new Date().toISOString(),
     };
+
     try {
-      toast({ title: "Processing..." });
-      const pdfBase64 = generatePDF(orderData);
-      await sendEmailWithPDF(orderData, pdfBase64);
-      toast({ title: "Order Processed Successfully" });
-      setShowFormDialog(false);
-      clearCart();
-      setCustomerInfo({
-        fullName: "",
-        email: "",
-        phone: "",
-        barangay: "",
-        city: "",
-        province: "",
+      toast({ title: "Processing Your Order..." });
+
+      // 1. Generate the PDF and get its Base64 representation
+      const pdfDoc = generatePDFDoc(orderData);
+      const pdfBase64 = pdfDoc.output("datauristring").split(",")[1];
+
+      // 2. Get EmailJS credentials
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
+
+      if (!serviceId || !templateId || !publicKey) {
+        throw new Error("EmailJS environment variables are not configured.");
+      }
+      emailjs.init(publicKey);
+
+      // 3. Prepare the HTML for the email body
+      const itemsHtml = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px;">
+          ${orderData.items
+            .map((item) => {
+              let priceText: string;
+              const displayName = getDisplayName(item);
+
+              if (
+                item.type === "chassis" ||
+                (item.type === "body" && !item.selectedBody?.isCustom)
+              ) {
+                priceText = `₱${(
+                  (item.price as number) * item.quantity
+                ).toLocaleString()}`;
+              } else {
+                priceText = CUSTOM_PRICE_TEXT;
+              }
+
+              return `
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 10px 5px;">${displayName} × ${item.quantity}</td>
+                  <td style="padding: 10px 5px; text-align: right;">${priceText}</td>
+                </tr>
+              `;
+            })
+            .join("")}
+        </table>
+      `;
+
+      // 4. Create a common set of parameters for both emails
+      const commonEmailParams = {
+        from_name: "Hino Motors Philippines - Batangas",
+        order_id: orderData.orderId,
+        customer_name: orderData.customer.fullName,
+        customer_email: orderData.customer.email,
+        customer_address: `${orderData.customer.barangay}, ${orderData.customer.city}, ${orderData.customer.province}`,
+        order_items_html: itemsHtml,
+        order_total: orderData.total,
+        // The PDF attachment is included here, so it's sent in both emails
+        pdf_attachment: pdfBase64,
+      };
+
+      // 5. Prepare the two separate email promises
+
+      // Email to your admin address
+      const sendAdminEmail = emailjs.send(serviceId, templateId, {
+        ...commonEmailParams,
+        to_email: "shantijop1234567890@gmail.com", // Your admin email
+        reply_to: orderData.customer.email, // So you can reply directly to the customer
       });
-    } catch (error) {
-      console.error("Order processing error:", error);
-      toast({ title: "Error processing order", variant: "destructive" });
+
+      // Email to the customer
+      const sendCustomerEmail = emailjs.send(serviceId, templateId, {
+        ...commonEmailParams,
+        to_email: orderData.customer.email, // The customer's email from the form
+        reply_to: "shantijop1234567890@gmail.com", // So they can reply to you
+      });
+
+      // 6. Send both emails concurrently and wait for them to finish
+      await Promise.all([sendAdminEmail, sendCustomerEmail]);
+
+      toast({
+        title: "Order Submitted Successfully",
+        description: "A confirmation has been sent to your email.",
+      });
+      clearCart();
+      setLastSuccessfulOrder(orderData);
+      setShowFormDialog(false);
+    } catch (error: any) {
+      console.error("EmailJS raw error object:", error);
+      const errorMessage =
+        error.text ||
+        "An unknown error occurred. Check console and EmailJS dashboard.";
+      toast({
+        title: "Email Sending Failed",
+        description: `Error: ${errorMessage}`,
+        variant: "destructive",
+        duration: 9000,
+      });
     } finally {
       setIsProcessing(false);
     }
   };
+
+  const handlePrint = () => {
+    if (lastSuccessfulOrder) {
+      const pdfDoc = generatePDFDoc(lastSuccessfulOrder);
+      pdfDoc.autoPrint();
+      pdfDoc.output("dataurlnewwindow");
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    if (lastSuccessfulOrder) {
+      const pdfDoc = generatePDFDoc(lastSuccessfulOrder);
+      pdfDoc.save(`Hino-Order-Receipt-${lastSuccessfulOrder.orderId}.pdf`);
+    }
+  };
+
+  // RENDER LOGIC
+  if (lastSuccessfulOrder) {
+    return (
+      <div className="container mx-auto py-12 px-4 text-center">
+        <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
+        <h1 className="text-3xl font-bold mb-4 text-gray-800">
+          Order Confirmed!
+        </h1>
+        <p className="mb-2 text-gray-600">
+          Thank you for your order, {lastSuccessfulOrder.customer.fullName}.
+        </p>
+        <p className="mb-4 text-gray-600">
+          Your Order ID is <strong>{lastSuccessfulOrder.orderId}</strong>.
+        </p>
+        <p className="mb-8 text-gray-600">
+          A confirmation email with a PDF receipt has been sent to{" "}
+          {lastSuccessfulOrder.customer.email}. We will get back to you shortly.
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+          <Button
+            variant="outline"
+            onClick={handleDownloadPDF}
+            className="w-full sm:w-auto"
+          >
+            <Download className="mr-2 h-4 w-4" /> Download PDF Receipt
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handlePrint}
+            className="w-full sm:w-auto"
+          >
+            <Printer className="mr-2 h-4 w-4" /> Print Receipt
+          </Button>
+        </div>
+        <Link href="/products">
+          <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
+            Continue Shopping
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   if (cart.length === 0) {
     return (
@@ -306,9 +409,11 @@ export default function CartPage() {
         <h1 className="text-3xl font-bold mb-6 text-black">
           Your Cart is Empty
         </h1>
-        <p className="mb-8 text-black">...</p>
+        <p className="mb-8 text-gray-700">
+          Looks like you haven't added any products yet.
+        </p>
         <Link href="/products">
-          <Button className="bg-red-600 hover:bg-red-700 text-white">
+          <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
             Browse Products
           </Button>
         </Link>
@@ -321,331 +426,300 @@ export default function CartPage() {
       <h1 className="text-3xl font-bold mb-8 text-black">Your Cart</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <div className="border rounded-lg overflow-hidden">
-            <div className="bg-gray-100 p-4 font-bold grid grid-cols-12 gap-4 text-black">
-              {/* Headers */}
+          <div className="border rounded-lg overflow-hidden bg-white shadow-md">
+            <div className="bg-gray-50 p-4 font-semibold grid grid-cols-12 gap-4 text-gray-600 text-sm border-b border-gray-200">
               <div className="col-span-6">Product</div>
               <div className="col-span-2 text-center">Unit Price</div>
               <div className="col-span-2 text-center">Quantity</div>
               <div className="col-span-2 text-center">Subtotal</div>
             </div>
-            <div className="divide-y">
-              {cart.map((item: CartItem) => {
-                // **** ADD THIS CONSOLE.LOG ****
-                console.log(
-                  "[CartPage] Rendering item:",
-                  JSON.stringify(item, null, 2)
-                );
-
-                const displayName = item.name; // Should be pre-formatted
-                let unitPriceForDisplay: string | number = item.price; // Default to item's direct price
-                let subtotalForDisplay: string | number;
-                let itemImageToDisplay = item.image || "/placeholder.svg"; // Default
-                const subDescriptionForDisplay = "Vehicle with Standard Body"; // Consistent for both lines as per screenshot
-
-                const isBodySpecItem = item.type === "body";
-
-                if (isBodySpecItem && item.selectedBody) {
-                  itemImageToDisplay =
-                    item.selectedBody.image || CUSTOM_BODY_IMAGE_PLACEHOLDER;
-                  // CRITICAL: For the body spec item, Unit Price and Subtotal must be priceText
-                  if (item.selectedBody.priceText) {
-                    unitPriceForDisplay = item.selectedBody.priceText;
-                    subtotalForDisplay = item.selectedBody.priceText;
-                  } else {
-                    // Fallback if priceText is somehow missing, though it shouldn't be for custom spec
-                    unitPriceForDisplay = "Price Varies";
-                    subtotalForDisplay = "Price Varies";
-                  }
-                } else if (item.type === "chassis") {
-                  // For chassis, unit price is item.price
-                  unitPriceForDisplay = item.price;
-                  subtotalForDisplay = item.price * item.quantity;
-                  itemImageToDisplay = item.image || "/placeholder-chassis.png";
-                } else {
-                  // Fallback for any other unexpected item structure
-                  subtotalForDisplay =
-                    typeof unitPriceForDisplay === "number"
-                      ? unitPriceForDisplay * item.quantity
-                      : unitPriceForDisplay;
-                }
-
-                return (
-                  <div
-                    key={item.id}
-                    className="p-4 grid grid-cols-12 gap-4 items-center"
-                  >
-                    <div className="col-span-6 flex items-center">
-                      <div className="relative h-16 w-16 mr-3">
-                        <Image
-                          src={itemImageToDisplay}
-                          alt={displayName}
-                          fill
-                          style={{ objectFit: "contain" }}
-                          onError={(e) =>
-                            (e.currentTarget.src = "/placeholder.svg")
-                          }
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-black">
-                          {displayName}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {subDescriptionForDisplay}
-                        </p>
-                      </div>
+            <div className="divide-y divide-gray-200">
+              {cart.map((item: CartItem) => (
+                <div
+                  key={item.id}
+                  className="p-4 grid grid-cols-12 gap-4 items-center"
+                >
+                  <div className="col-span-6 flex items-center space-x-3">
+                    <div className="relative h-16 w-16 flex-shrink-0">
+                      <Image
+                        src={
+                          item.image ||
+                          item.selectedBody?.image ||
+                          CUSTOM_BODY_IMAGE_PLACEHOLDER
+                        }
+                        alt={item.name}
+                        fill
+                        style={{ objectFit: "contain" }}
+                        onError={(e) =>
+                          (e.currentTarget.src = "/placeholder.svg")
+                        }
+                      />
                     </div>
-                    <div className="col-span-2 text-center text-black">
-                      {typeof unitPriceForDisplay === "number"
-                        ? `₱${unitPriceForDisplay.toLocaleString()}`
-                        : unitPriceForDisplay}
+                    <div>
+                      <h3 className="font-medium text-gray-800">
+                        {getDisplayName(item)}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {item.type === "chassis"
+                          ? "Chassis"
+                          : item.selectedBody?.isCustom
+                          ? "Custom Body Specification"
+                          : "Standard Body"}
+                      </p>
+                      {item.type === "body" && item.selectedBody?.isCustom && (
+                        <div className="text-xs text-gray-500 mt-1 leading-tight">
+                          {item.selectedBody.userSpecifiedBodyType &&
+                            item.selectedBody.userSpecifiedBodyType !==
+                              item.selectedBody.name && (
+                              <p>
+                                Type: {item.selectedBody.userSpecifiedBodyType}
+                              </p>
+                            )}
+                          {item.selectedBody.length &&
+                          item.selectedBody.width &&
+                          item.selectedBody.height ? (
+                            <p>
+                              <span>L:{item.selectedBody.length}ft </span>
+                              <span>W:{item.selectedBody.width}ft </span>
+                              <span>H:{item.selectedBody.height}ft </span>
+                            </p>
+                          ) : item.selectedBody.cubicMeter ? (
+                            <p>
+                              <span>
+                                Volume: {item.selectedBody.cubicMeter}m³
+                              </span>
+                            </p>
+                          ) : item.selectedBody.liters ? (
+                            <p>
+                              <span>Volume: {item.selectedBody.liters}L</span>
+                            </p>
+                          ) : item.selectedBody.volume ? (
+                            <p>
+                              <span>
+                                Volume: {item.selectedBody.volume} cu.ft
+                              </span>
+                            </p>
+                          ) : null}
+                        </div>
+                      )}
                     </div>
-                    <div className="col-span-2 text-center">
-                      <div className="flex items-center justify-center">
-                        <button
-                          className="w-12 h-12 border rounded-l-md flex items-center justify-center text-black text-xl touch-manipulation disabled:opacity-50"
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
-                          disabled={item.quantity <= 1 || isBodySpecItem}
-                          type="button"
-                        >
-                          {" "}
-                          -{" "}
-                        </button>
-                        <span className="w-16 h-12 border-t border-b flex items-center justify-center text-black text-lg">
-                          {item.quantity}
-                        </span>
-                        <button
-                          className="w-12 h-12 border rounded-r-md flex items-center justify-center text-black text-xl touch-manipulation disabled:opacity-50"
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
-                          disabled={isBodySpecItem}
-                          type="button"
-                        >
-                          {" "}
-                          +{" "}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="col-span-2 text-center flex items-center justify-between">
-                      <span className="text-black">
-                        {typeof subtotalForDisplay === "number"
-                          ? `₱${subtotalForDisplay.toLocaleString()}`
-                          : subtotalForDisplay}
+                  </div>
+                  <div className="col-span-2 text-center text-gray-700">
+                    {item.type === "body" && item.selectedBody?.isCustom
+                      ? CUSTOM_PRICE_TEXT
+                      : formatDisplayPrice(item.price)}
+                  </div>
+                  <div className="col-span-2 text-center">
+                    <div className="flex items-center justify-center">
+                      <button
+                        className="px-2 py-1 border rounded-l-md text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity - 1)
+                        }
+                        disabled={item.quantity <= 1}
+                      >
+                        –
+                      </button>
+                      <span className="px-3 py-1 border-t border-b text-gray-700">
+                        {item.quantity}
                       </span>
                       <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-red-600 hover:text-red-800 p-2 touch-manipulation"
-                        type="button"
+                        className="px-2 py-1 border rounded-r-md text-gray-700 hover:bg-gray-100"
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity + 1)
+                        }
                       >
-                        <Trash2 className="h-6 w-6" />
+                        +
                       </button>
                     </div>
                   </div>
-                );
-              })}
+                  <div className="col-span-2 text-center flex items-center justify-end space-x-2">
+                    <span className="text-gray-800 font-medium">
+                      {item.type === "body" && item.selectedBody?.isCustom
+                        ? CUSTOM_PRICE_TEXT
+                        : typeof item.price === "number"
+                        ? formatDisplayPrice(item.price * item.quantity)
+                        : formatDisplayPrice(item.price)}
+                    </span>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="text-red-500 hover:text-red-700 p-1"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          {/* ... Continue Shopping button ... */}
-          <div className="mt-4 flex justify-between">
+          <div className="mt-6 flex justify-start">
             <Link href="/products">
               <Button
                 variant="outline"
-                className="text-black flex items-center p-6 text-lg"
+                className="text-gray-700 border-gray-300 hover:bg-gray-50 px-6 py-2.5"
               >
-                <ArrowLeft className="mr-2 h-6 w-6" /> Continue Shopping
+                <ArrowLeft className="mr-2 h-4 w-4" /> Continue Shopping
               </Button>
             </Link>
           </div>
         </div>
-
         <div className="lg:col-span-1">
-          <div className="border rounded-lg p-4">
-            <h2 className="text-xl font-bold mb-4 text-black">Order Summary</h2>
+          <div className="bg-white border rounded-lg p-6 shadow-md">
+            <h2 className="text-xl font-bold mb-4 text-gray-800">
+              Order Summary
+            </h2>
             <div className="space-y-2 mb-4">
-              {cart.map((item: CartItem) => {
-                const summaryNameLine = `${item.name} x${item.quantity}`;
-                let summaryPriceText: string | number;
-
-                if (item.type === "chassis") {
-                  summaryPriceText = item.price * item.quantity;
-                } else if (
-                  item.type === "body" &&
-                  item.selectedBody?.priceText
-                ) {
-                  // Check for priceText
-                  summaryPriceText = item.selectedBody.priceText;
-                } else {
-                  // Fallback, though body item price is 0
-                  summaryPriceText = item.price * item.quantity;
-                }
-
-                return (
-                  <div
-                    key={`summary-${item.id}-${item.type}`}
-                    className="flex justify-between text-black"
-                  >
-                    <span>{summaryNameLine}</span>
-                    <span>
-                      {typeof summaryPriceText === "number"
-                        ? `₱${summaryPriceText.toLocaleString()}`
-                        : summaryPriceText}
-                    </span>
-                  </div>
-                );
-              })}
+              {cart.map((item: CartItem) => (
+                <div
+                  key={`summary-${item.id}`}
+                  className="flex justify-between text-gray-700 text-sm"
+                >
+                  <span className="flex-1 truncate pr-2">
+                    {getDisplayName(item)} x{item.quantity}
+                  </span>
+                  <span className="whitespace-nowrap">
+                    {item.type === "body" && item.selectedBody?.isCustom
+                      ? CUSTOM_PRICE_TEXT
+                      : typeof item.price === "number"
+                      ? formatDisplayPrice(item.price * item.quantity)
+                      : formatDisplayPrice(item.price)}
+                  </span>
+                </div>
+              ))}
             </div>
-            {/* ... Total and Checkout Button ... */}
-            <div className="border-t pt-4 mb-6">
-              <div className="flex justify-between font-bold text-lg text-black">
+            <div className="border-t border-gray-200 pt-4 mb-4">
+              <div className="flex justify-between font-bold text-lg text-gray-800">
                 <span>Total</span>
                 <span>{totalPriceDisplay}</span>
               </div>
             </div>
             <Button
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-6 text-xl flex items-center justify-center touch-manipulation"
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg font-medium rounded-md"
               onClick={() => setShowFormDialog(true)}
+              disabled={cart.length === 0}
             >
-              <CreditCard className="mr-2 h-6 w-6" /> Checkout
+              <CreditCard className="mr-2 h-5 w-5" /> Checkout
             </Button>
           </div>
         </div>
       </div>
-      {/* --- Dialog for customer info (keep as is) --- */}
+
       <Dialog open={showFormDialog} onOpenChange={setShowFormDialog}>
-        <DialogContent className="sm:max-w-[500px] p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl">
-              Customer Information
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleFormSubmit} className="space-y-4">
-            <div>
-              <Label
-                htmlFor="fullName"
-                className="text-black text-sm sm:text-base"
-              >
-                Full Name *
-              </Label>
-              <Input
-                id="fullName"
-                name="fullName"
-                value={customerInfo.fullName}
-                onChange={handleInputChange}
-                required
-                className="text-black text-sm sm:text-base p-2 sm:p-4 mt-1"
-              />
-            </div>
-            <div>
-              <Label
-                htmlFor="email"
-                className="text-black text-sm sm:text-base"
-              >
-                Email *
-              </Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={customerInfo.email}
-                onChange={handleInputChange}
-                required
-                className="text-black text-sm sm:text-base p-2 sm:p-4 mt-1"
-              />
-            </div>
-            <div>
-              <Label
-                htmlFor="phone"
-                className="text-black text-sm sm:text-base"
-              >
-                Phone Number *
-              </Label>
-              <Input
-                id="phone"
-                name="phone"
-                value={customerInfo.phone}
-                onChange={handleInputChange}
-                required
-                className="text-black text-sm sm:text-base p-2 sm:p-4 mt-1"
-              />
-            </div>
-            <div>
-              <Label
-                htmlFor="barangay"
-                className="text-black text-sm sm:text-base"
-              >
-                Barangay *
-              </Label>
-              <Input
-                id="barangay"
-                name="barangay"
-                value={customerInfo.barangay}
-                onChange={handleInputChange}
-                required
-                className="text-black text-sm sm:text-base p-2 sm:p-4 mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="city" className="text-black text-sm sm:text-base">
-                City/Municipality *
-              </Label>
-              <Input
-                id="city"
-                name="city"
-                value={customerInfo.city}
-                onChange={handleInputChange}
-                required
-                className="text-black text-sm sm:text-base p-2 sm:p-4 mt-1"
-              />
-            </div>
-            <div>
-              <Label
-                htmlFor="province"
-                className="text-black text-sm sm:text-base"
-              >
-                Province *
-              </Label>
-              <Input
-                id="province"
-                name="province"
-                value={customerInfo.province}
-                onChange={handleInputChange}
-                required
-                className="text-black text-sm sm:text-base p-2 sm:p-4 mt-1"
-              />
-            </div>
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowFormDialog(false)}
-                disabled={isProcessing}
-                className="text-sm sm:text-base p-2 sm:p-4"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="bg-red-600 text-white text-sm sm:text-base p-2 sm:p-4"
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <>
-                    <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Download className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                    Submit Order
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
+        <DialogContent className="sm:max-w-[500px] p-6">
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-semibold text-gray-800">
+                Customer Information
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleFormSubmit} className="space-y-4 pt-2">
+              <div>
+                <Label htmlFor="fullName" className="text-gray-700">
+                  Full Name *
+                </Label>
+                <Input
+                  id="fullName"
+                  name="fullName"
+                  value={customerInfo.fullName}
+                  onChange={handleInputChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email" className="text-gray-700">
+                  Email *
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={customerInfo.email}
+                  onChange={handleInputChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone" className="text-gray-700">
+                  Phone Number *
+                </Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  value={customerInfo.phone}
+                  onChange={handleInputChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="barangay" className="text-gray-700">
+                  Barangay *
+                </Label>
+                <Input
+                  id="barangay"
+                  name="barangay"
+                  value={customerInfo.barangay}
+                  onChange={handleInputChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="city" className="text-gray-700">
+                  City/Municipality *
+                </Label>
+                <Input
+                  id="city"
+                  name="city"
+                  value={customerInfo.city}
+                  onChange={handleInputChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="province" className="text-gray-700">
+                  Province *
+                </Label>
+                <Input
+                  id="province"
+                  name="province"
+                  value={customerInfo.province}
+                  onChange={handleInputChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <DialogFooter className="pt-4 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowFormDialog(false)}
+                  disabled={isProcessing}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-red-600 hover:bg-red-700"
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <>
+                      <FileText className="mr-2 h-4 w-4 animate-spin" />{" "}
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="mr-2 h-4 w-4" /> Submit Order
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </>
         </DialogContent>
       </Dialog>
     </div>
