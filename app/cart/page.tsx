@@ -106,11 +106,11 @@ export default function CartPage() {
     });
     if (hasVariablePriceItem) {
       return (
-        (numericTotal > 0 ? `₱${numericTotal.toLocaleString()} + ` : "") +
+        (numericTotal > 0 ? `PHP ${numericTotal.toLocaleString()} + ` : "") +
         "Custom Body Costs"
       );
     }
-    return `₱${numericTotal.toLocaleString()}`;
+    return `PHP ${numericTotal.toLocaleString()}`;
   };
   const totalPriceDisplay = calculateTotalPriceDisplay();
 
@@ -123,7 +123,6 @@ export default function CartPage() {
     const pdf = new jsPDF();
     let yPosition = 20;
 
-    // --- Header ---
     pdf.setFontSize(20);
     pdf.text("Hino Motors Philippines", 105, yPosition, { align: "center" });
     yPosition += 8;
@@ -141,7 +140,6 @@ export default function CartPage() {
     );
     yPosition += 20;
 
-    // --- Customer Info ---
     pdf.setFontSize(16);
     pdf.text("Customer Information", 20, yPosition);
     yPosition += 10;
@@ -159,12 +157,10 @@ export default function CartPage() {
     );
     yPosition += 20;
 
-    // --- Order Items Table ---
     pdf.setFontSize(16);
     pdf.text("Order Items", 20, yPosition);
     yPosition += 10;
 
-    // Define column positions
     const itemX = 20;
     const qtyX = 145;
     const totalX = 190;
@@ -174,12 +170,11 @@ export default function CartPage() {
     pdf.text("Qty", qtyX, yPosition, { align: "right" });
     pdf.text("Total", totalX, yPosition, { align: "right" });
     yPosition += 5;
-    pdf.line(20, yPosition, 190, yPosition); // Line under headers
+    pdf.line(20, yPosition, 190, yPosition);
     yPosition += 8;
 
     orderData.items.forEach((item) => {
       if (yPosition > 270) {
-        // Add new page if content overflows
         pdf.addPage();
         yPosition = 20;
       }
@@ -191,7 +186,7 @@ export default function CartPage() {
         item.type === "chassis" ||
         (item.type === "body" && !item.selectedBody?.isCustom)
       ) {
-        totalText = `₱${(
+        totalText = `PHP ${(
           (item.price as number) * item.quantity
         ).toLocaleString()}`;
       } else {
@@ -204,9 +199,8 @@ export default function CartPage() {
       yPosition += 8;
     });
 
-    // --- Totals ---
     yPosition += 5;
-    pdf.line(120, yPosition, 190, yPosition); // Line above total
+    pdf.line(120, yPosition, 190, yPosition);
     yPosition += 8;
     pdf.setFontSize(14);
     pdf.setFont("helvetica", "bold");
@@ -217,19 +211,9 @@ export default function CartPage() {
     return pdf;
   };
 
-  // MODIFIED FUNCTION WITH DEBUGGING LOGS
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-
-    // --- TEMPORARY DEBUGGING ---
-    // This will print the values Vercel sees to the browser console.
-    console.log("--- Vercel Environment Variable Check ---");
-    console.log("Service ID:", process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID);
-    console.log("Template ID:", process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID);
-    console.log("Public Key:", process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY);
-    console.log("---------------------------------------");
-    // ---------------------------
 
     const orderId = `HMP-${Date.now().toString().slice(-6)}`;
 
@@ -296,6 +280,7 @@ export default function CartPage() {
         customer_name: orderData.customer.fullName,
         customer_email: orderData.customer.email,
         customer_address: `${orderData.customer.barangay}, ${orderData.customer.city}, ${orderData.customer.province}`,
+        customer_number: orderData.customer.phone, // <-- ADD THIS LINE
         order_items_html: itemsHtml,
         order_total: orderData.total,
       };
@@ -352,7 +337,6 @@ export default function CartPage() {
     }
   };
 
-  // RENDER LOGIC
   if (lastSuccessfulOrder) {
     return (
       <div className="container mx-auto py-12 px-4 text-center">
