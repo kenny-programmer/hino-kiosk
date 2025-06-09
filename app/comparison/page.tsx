@@ -33,7 +33,6 @@ export default function ComparisonPage() {
     });
   };
 
-  // Get all unique specification keys from all items
   const allSpecKeys = new Set<string>();
   comparisonItems.forEach((item) => {
     if (item.specifications) {
@@ -103,7 +102,6 @@ export default function ComparisonPage() {
               </thead>
 
               <tbody>
-                {/* Product Image */}
                 <tr>
                   <td className="border p-4 font-medium text-black">Image</td>
                   {comparisonItems.map((item) => (
@@ -120,7 +118,6 @@ export default function ComparisonPage() {
                   ))}
                 </tr>
 
-                {/* Product Name */}
                 <tr>
                   <td className="border p-4 font-medium text-black">Name</td>
                   {comparisonItems.map((item) => (
@@ -130,7 +127,6 @@ export default function ComparisonPage() {
                   ))}
                 </tr>
 
-                {/* Product Type */}
                 <tr>
                   <td className="border p-4 font-medium text-black">Type</td>
                   {comparisonItems.map((item) => (
@@ -140,7 +136,6 @@ export default function ComparisonPage() {
                   ))}
                 </tr>
 
-                {/* Product Price */}
                 <tr>
                   <td className="border p-4 font-medium text-black">Price</td>
                   {comparisonItems.map((item) => (
@@ -152,7 +147,6 @@ export default function ComparisonPage() {
                   ))}
                 </tr>
 
-                {/* Engine (for chassis only) */}
                 {comparisonItems.some((item) => item.engine) && (
                   <tr>
                     <td className="border p-4 font-medium text-black">
@@ -166,7 +160,25 @@ export default function ComparisonPage() {
                   </tr>
                 )}
 
-                {/* Compatible Series (for bodies only) */}
+                {comparisonItems.some(
+                  (item) => typeof (item as any).airconditioned !== "undefined"
+                ) && (
+                  <tr>
+                    <td className="border p-4 font-medium text-black">
+                      Airconditioned
+                    </td>
+                    {comparisonItems.map((item) => (
+                      <td key={item.id} className="border p-4">
+                        {typeof (item as any).airconditioned !== "undefined"
+                          ? (item as any).airconditioned
+                            ? "Yes"
+                            : "No"
+                          : "-"}
+                      </td>
+                    ))}
+                  </tr>
+                )}
+
                 {comparisonItems.some((item) => item.compatibleSeries) && (
                   <tr>
                     <td className="border p-4 font-medium text-black">
@@ -193,7 +205,6 @@ export default function ComparisonPage() {
                   </tr>
                 )}
 
-                {/* Specifications */}
                 <tr className="bg-gray-50">
                   <td
                     colSpan={comparisonItems.length + 1}
@@ -208,15 +219,13 @@ export default function ComparisonPage() {
                     <td className="border p-4 font-medium text-black">{key}</td>
                     {comparisonItems.map((item) => (
                       <td key={item.id} className="border p-4">
-                        {item.specifications && item.specifications[key]
-                          ? item.specifications[key]
-                          : "-"}
+                        {(item.specifications && item.specifications[key]) ||
+                          "-"}
                       </td>
                     ))}
                   </tr>
                 ))}
 
-                {/* Add to Cart */}
                 <tr>
                   <td className="border p-4 font-medium text-black">Actions</td>
                   {comparisonItems.map((item) => (

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/cart-context";
-import { getModelData } from "@/lib/data";
+import { getModelData, Model } from "@/lib/data";
 import { useToast } from "@/components/ui/use-toast";
 import { ShoppingCart, CreditCard, Truck, ArrowLeft } from "lucide-react";
 import { ComparisonButton } from "@/components/comparison-button";
@@ -19,7 +19,7 @@ export default function ModelPage() {
   const series = pathParts[pathParts.length - 2] || "";
   const modelId = pathParts[pathParts.length - 1] || "";
 
-  const [model, setModel] = useState<any>(null);
+  const [model, setModel] = useState<Model | null>(null);
   const { addToCart } = useCart();
   const { toast } = useToast();
 
@@ -35,7 +35,6 @@ export default function ModelPage() {
   const isBusOrPUV = series === "buses" || series === "puvs";
 
   const handleAddToCart = () => {
-    // Add the chassis/model to cart
     addToCart({
       id: `${series}-${modelId}`,
       type: isBusOrPUV ? (series === "buses" ? "bus" : "puv") : "chassis",
@@ -56,12 +55,10 @@ export default function ModelPage() {
 
   const handleBuyChassisOnly = () => {
     handleAddToCart();
-    // Redirect to cart
     router.push("/cart");
   };
 
   const handleViewBodies = () => {
-    // Redirect to body selection page without adding to cart
     router.push(`/products/${series}/${modelId}/bodies`);
   };
 
@@ -103,7 +100,7 @@ export default function ModelPage() {
               Specifications
             </h2>
 
-            <div className="grid grid-cols-2 gap-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-4">
               {Object.entries(model.specifications || {}).map(
                 ([key, value]) => (
                   <div key={key} className="border-b pb-2">
@@ -111,6 +108,16 @@ export default function ModelPage() {
                     <span className="text-black">{String(value)}</span>
                   </div>
                 )
+              )}
+              {typeof model.airconditioned === "boolean" && (
+                <div className="border-b pb-2">
+                  <span className="font-medium text-black">
+                    Airconditioned:{" "}
+                  </span>
+                  <span className="text-black">
+                    {model.airconditioned ? "Yes" : "No"}
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -215,7 +222,6 @@ export default function ModelPage() {
           )}
         </div>
       </div>
-
       <ComparisonFloatingBar />
     </div>
   );
