@@ -86,70 +86,70 @@ export const seriesData: SeriesData = {
     models: [
       {
         id: "414i", name: "414i", description: "The Hino 300 Series 414i's modern, aerodynamic design improves urban maneuverability for efficient city deliveries.",
-        image: "/images/300-series-414i.jpg", price: 1800000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-414i.png", price: 1800000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "5,075 x 1,715 x 2,115 mm", Wheelbase: "2,530 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "150 km/h" },
       },
       {
         id: "414i-long", name: "414i Long", description: "The durable Hino 300 Series 414i Long offers extended cargo space for efficient, and demanding transport everywhere.",
-        image: "/images/300-series-414i.jpg", price: 1850000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-414i-Long.png", price: 1850000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "6,430 x 1,715 x 2,115 mm", Wheelbase: "3,405 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "150 km/h" },
       },
       {
         id: "414i-6W", name: "414i 6W", description: "The 300 Series 414i 6W features a six-wheeler configuration that enhances load distribution and stability.",
-        image: "/images/300-series-414i.jpg", price: 1900000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-414i-6W.png", price: 1900000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "6,320 x 1,965 x 2,115 mm", Wheelbase: "3,380 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "133 km/h" }
       },
       {
         id: "514", name: "514", description: "The versatile and robust Hino 300 Series 514 offers a customizable, strong base for diverse applications.",
-        image: "/images/300-series-514.jpg", price: 2000000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-514.png", price: 2000000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "4,680 x 1,695 x 2,130 mm", Wheelbase: "2,525 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "125 km/h" }
       },
       {
         id: "514-auto", name: "514 Auto", description: "The durable and efficient 514 Auto provides long-lasting urban performance with minimized fuel consumption.",
-        image: "/images/300-series-514.jpg", price: 2100000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-514-Auto.png", price: 2100000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Rescue Truck", "Prison Van", "School Service"],
         engine: "N04C-WB Diesel Engine",
         specifications: { "Gross Vehicle Weight": "4,490 kg", "Chassis Dimensions (L x W x H)": "4,680 x 1,695 x 2,130 mm", Wheelbase: "2,525 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "125 km/h" }
       },
       {
         id: "616", name: "616", description: "The durable and flexible Hino 300 Series 616 provides a reliable, customizable base for diverse transport needs.",
-        image: "/images/300-series-616.png", price: 2200000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-616.png", price: 2200000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "6,500 kg", "Chassis Dimensions (L x W x H)": "6,120 x 1,995 x 2,205 mm", Wheelbase: "3,430 mm", "Max Output": "150 PS", "Max Torque": "420 Nm", "Max Speed": "123 km/h" },
       },
       {
         id: "716", name: "716", description: "The powerful and versatile Hino 300 Series 716 provides a robust, customizable base for enhanced business operations.",
-        image: "/images/300-series-616.png", price: 2300000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-716.png", price: 2300000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "6,500 kg", "Chassis Dimensions (L x W x H)": "6,120 x 1,995 x 2,240 mm", Wheelbase: "3,430 mm", "Max Output": "150 PS", "Max Torque": "420 Nm", "Max Speed": "132 km/h" },
       },
       {
         id: "716-double", name: "716 Double", description: "The Hino 300 Series 716 Double offers comfortable team transport and versatile customization for various commercial needs.",
-        image: "/images/300-series-616.png", price: 2400000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-716-Double.png", price: 2400000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "6,500 kg", "Chassis Dimensions (L x W x H)": "6,740 x 1,995 x 2,255 mm", Wheelbase: "3,870 mm", "Max Output": "150 PS", "Max Torque": "420 Nm", "Max Speed": "132 km/h" },
       },
       {
         id: "814i", name: "814i", description: "The Hino 300 Series 814i's durable design is built to withstand everyday urban logistics challenges on daily use.",
-        image: "/images/300-series-616.png", price: 2500000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-814i.png", price: 2500000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "7,500 kg", "Chassis Dimensions (L x W x H)": "6,320 x 1,965 x 2,155 mm", Wheelbase: "3,380 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "133 km/h" },
       },
       {
         id: "814i-extra-long", name: "814i Extra Long", description: "The innovative Hino 300 Series 814i Extra Long optimizes urban deliveries with extended body and efficient storage.",
-        image: "/images/300-series-616.png", price: 2600000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-814i-Extra-Long.png", price: 2600000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "7,500 kg", "Chassis Dimensions (L x W x H)": "7,185 x 1,965 x 2,150 mm", Wheelbase: "4,000 mm", "Max Output": "136 PS", "Max Torque": "390 Nm", "Max Speed": "133 km/h" },
@@ -157,7 +157,7 @@ export const seriesData: SeriesData = {
       {
         id: "916", name: "916 Truck",
         description: "The Hino 300 Series 916 offers high payload capacity and reliability for demanding transport, with a robust, customizable design.",
-        image: "/images/300-series-616.png", price: 2700000, // Your price was 9,999,999
+        image: "/images/300-series/300-series-916.png", price: 2700000, // Your price was 9,999,999
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Dump Truck", "Stake Truck", "Water Tanker", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Garbage Dump Truck"],
         engine: "J05E-UG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "8,500 kg", "Chassis Dimensions (L x W x H)": "7,250 x 2,055 x 2,260 mm", Wheelbase: "4,000 mm", "Max Output": "150 PS", "Max Torque": "420 Nm", "Max Speed": "125 km/h" },
@@ -171,72 +171,72 @@ export const seriesData: SeriesData = {
       {
         id: "1021-truck", name: "1021 Truck",
         description: "Powerful heavy-duty truck for industrial use",
-        image: "/images/500-series-1021.jpg", price: 3200000, // Your provided price 2,450,000. Using slightly higher placeholder.
+        image: "/images/500-series/500-series-1021.png", price: 3200000, // Your provided price 2,450,000. Using slightly higher placeholder.
         bodyType: ["Aluminum Van", "Wing Van", "Dump Truck", "Garbage Dump Truck", "Water Tanker", "Refrigerated Van", "Stake Truck", "Fire Truck", "Rescue Truck", "Prison Van", "School Service", "Multipurpose Van", "Dropside"],
         engine: "J08E-VD Diesel Engine",
         specifications: { "Gross Vehicle Weight": "10,400 kg", "Chassis Dimensions (L x W x H)": "8,395 x 2,190 x 2,470 mm", Wheelbase: "4,990 mm", "Max Output": "210 PS", "Max Torque": "637 Nm", "Max Speed": "115 km/h" },
       },
       {
-        id: "1625-truck", name: "1625 Truck",
+        id: "1625-truck", name: "1625",
         description: "Heavy-duty truck for construction and logistics",
-        image: "/images/500-series-1625.jpg", price: 4500000, // Your price 2,950,000
+        image: "/images/500-series/500-series-1625.png", price: 4500000, // Your price 2,950,000
         bodyType: ["Aluminum Van", "Wing Van", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Refrigerated Van", "Stake Truck", "Rescue Truck", "Prison Van", "School Service", "Multipurpose Van", "Dropside"],
         engine: "J08E-WG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "16,000 kg", "Chassis Dimensions (L x W x H)": "7,785 x 2,490 x 2,750 mm", Wheelbase: "4,330 mm", "Max Output": "240 PS", "Max Torque": "716 Nm", "Max Speed": "104 km/h" },
       },
       {
-        id: "1625-long-truck", name: "1625 Long Truck",
+        id: "1625-long-truck", name: "1625 Long",
         description: "Heavy-duty truck for construction and logistics",
-        image: "/images/500-series-1625.jpg", price: 4600000, // Your price 2,950,000
+        image: "/images/500-series/500-series-1625-Long.png", price: 4600000, // Your price 2,950,000
         bodyType: ["Aluminum Van", "Wing Van", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Refrigerated Van", "Stake Truck", "Rescue Truck", "Prison Van", "School Service", "Multipurpose Van", "Dropside"],
         engine: "J08E-WG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "16,000 kg", "Chassis Dimensions (L x W x H)": "9,485 x 2,490 x 2,745 mm", Wheelbase: "5,530 mm", "Max Output": "240 PS", "Max Torque": "716 Nm", "Max Speed": "104 km/h" },
       },
       {
         id: "1927-auto", name: "1927 Auto", description: "Heavy-duty truck for construction and logistics",
-        image: "/images/500-series-1625.jpg", price: 5000000, // Your price 2,950,000
+        image: "/images/500-series/500-series-1927-Auto.png", price: 5000000, // Your price 2,950,000
         bodyType: ["Aluminum Van", "Wing Van", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker", "Refrigerated Van", "Stake Truck", "Rescue Truck", "Prison Van", "School Service", "Multipurpose Van", "Dropside"],
         engine: "J08E-WG Diesel Engine",
         specifications: { "Gross Vehicle Weight": "18,200 kg", "Chassis Dimensions (L x W x H)": "8,835 x 2,490 x 2,765 mm", Wheelbase: "5,080 mm", "Max Output": "260 PS", "Max Torque": "794 Nm", "Max Speed": "100 km/h" },
       },
       {
         id: "2629-6x2", name: "2629 6x2", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 5500000, // Your price 3,650,000
+        image: "/images/500-series/500-series-2629-6x2.png", price: 5500000, // Your price 3,650,000
         bodyType: ["Dump Truck", "Garbage Dump Truck", "Water Tanker", "Stake Truck"],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "26,000 kg", "Chassis Dimensions (L x W x H)": "11,935 x 2,490 x 2,770 mm", Wheelbase: "6,130 + 1,350 mm", "Max Output": "280 PS", "Max Torque": "824 Nm", "Max Speed": "111 km/h" },
       },
       {
         id: "2629-6x4", name: "2629 6x4", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 5700000, // Your price 3,650,000
+        image: "/images/500-series/500-series-2629-6x4.png", price: 5700000, // Your price 3,650,000
         bodyType: ["Dump Truck", "Garbage Dump Truck", "Water Tanker", "Stake Truck"],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "28,000 kg", "Chassis Dimensions (L x W x H)": "9,485 x 2,490 x 2,765 mm", Wheelbase: "4,630 + 1,350 mm", "Max Output": "280 PS", "Max Torque": "824 Nm", "Max Speed": "98 km/h" },
       },
       {
         id: "2836", name: "2836", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 6000000, // Your price 3,650,000
+        image: "/images/500-series/500-series-2836.png", price: 6000000, // Your price 3,650,000
         bodyType: ["Dump Truck", "Garbage Dump Truck", "Water Tanker", "Stake Truck"],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "28,000 kg", "Chassis Dimensions (L x W x H)": "9,485 x 2,490 x 2,905 mm", Wheelbase: "4,530 + 1,350 mm", "Max Output": "350 PS", "Max Torque": "1,422 Nm", "Max Speed": "117 km/h" },
       },
       {
         id: "2836-dump", name: "2836 Dump", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 6200000, // Your price 3,650,000
+        image: "/images/500-series/500-series-2836-Dump.png", price: 6200000, // Your price 3,650,000
         bodyType: ["Dump Truck", "Garbage Dump Truck", "Water Tanker"],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "28,000 kg", "Chassis Dimensions (L x W x H)": "7,435 x 2,490 x 2,910 mm", Wheelbase: "3,480 + 1,350 mm", "Max Output": "350 PS", "Max Torque": "1,422 Nm", "Max Speed": "109 km/h" },
       },
       {
         id: "1735-tractor", name: "1735 Tractor", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 3650000, // Your price
+        image: "/images/500-series/500-series-1735-Tractor.png", price: 3650000, // Your price
         bodyType: [],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "18,000 kg", "Chassis Dimensions (L x W x H)": "5,995 x 2,490 x 2,890 mm", Wheelbase: "3,630 mm", "Max Output": "350 PS", "Max Torque": "1,422 Nm", "Max Speed": "118 km/h" },
       },
       {
         id: "2635-tractor", name: "2635 Tractor", description: "Heavy-duty truck with superior traction for challenging terrain",
-        image: "/images/500-series-2629.jpg", price: 3650000, // Your price
+        image: "/images/500-series/500-series-2635-Tractor.png", price: 3650000, // Your price
         bodyType: [],
         engine: "E13C-BT Diesel Engine",
         specifications: { "Gross Vehicle Weight": "26,000 kg", "Chassis Dimensions (L x W x H)": "7,045 x 2,490 x 2,910 mm", Wheelbase: "3,480 + 1,350 mm", "Max Output": "350 PS", "Max Torque": "1,422 Nm", "Max Speed": "117 km/h" },
@@ -336,7 +336,7 @@ export const categoryCustomMeasurementConfig: Record<string, CustomMeasurementTy
 
 // --- CONSTANTS FOR CUSTOM BODIES ---
 export const CUSTOM_PRICE_TEXT = "Price varies depending on size";
-export const CUSTOM_BODY_IMAGE = "/images/bodies/custom-placeholder.jpg";
+export const CUSTOM_BODY_IMAGE = "/images/hino-logo-white.png";
 
 // --- BODY TYPES DATA (Standard Variants + Category-Specific Custom Options) ---
 // !!! CRITICAL: REVIEW AND UPDATE ALL 'price' VALUES FOR STANDARD BODIES !!!
@@ -348,17 +348,17 @@ export const bodyTypes: BodyTypes = {
   ],
   "Dropside": [
     { id: "dropside-10", name: "10ft Dropside", description: "10ft dropside body.", image: "/images/bodies/dropside-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 120000, specifications: { Length: "10 feet", Material: "Steel & Aluminum" }, isCustom: false },
-    { id: "dropside-14", name: "14ft Dropside", description: "14ft dropside body.", image: "/images/bodies/dropside-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 140000, specifications: { Length: "14 feet", Material: "Steel & Aluminum" }, isCustom: false },
+    { id: "dropside-14", name: "14ft Dropside", description: "14ft dropside body.", image: "/images/bodies/dropside-10.jpg", compatibleSeries: ["300-series", "500-series"], price: 140000, specifications: { Length: "14 feet", Material: "Steel & Aluminum" }, isCustom: false },
     { id: "custom-dropside", name: "Custom Dropside", description: "Specify dimensions for a custom dropside.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Dropside" }
   ],
   "Aluminum Van": [
     { id: "alvan-10", name: "10ft Aluminum Van", description: "10ft aluminum van body.", image: "/images/bodies/aluminum-van-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 170000, specifications: { Length: "10 feet", Material: "Aluminum"}, isCustom: false },
-    { id: "alvan-14", name: "14ft Aluminum Van", description: "14ft aluminum van body.", image: "/images/bodies/aluminum-van-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 210000, specifications: { Length: "14 feet", Material: "Aluminum"}, isCustom: false },
+    { id: "alvan-14", name: "14ft Aluminum Van", description: "14ft aluminum van body.", image: "/images/bodies/aluminum-van-10.jpg", compatibleSeries: ["300-series", "500-series"], price: 210000, specifications: { Length: "14 feet", Material: "Aluminum"}, isCustom: false },
     { id: "custom-aluminum-van", name: "Custom Aluminum Van", description: "Specify dimensions for a custom aluminum van.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Aluminum Van" }
   ],
   "Wing Van": [
     { id: "wingvan-12", name: "12ft Wing Van", description: "12ft wing van body.", image: "/images/bodies/wing-12.jpg", compatibleSeries: ["200-series", "300-series"], price: 250000, specifications: { Length: "12 feet", Material: "Aluminum", "Wing Type": "Manual"}, isCustom: false },
-    { id: "wingvan-16", name: "16ft Wing Van", description: "16ft wing van body.", image: "/images/bodies/wing-16.jpg", compatibleSeries: ["300-series", "500-series"], price: 300000, specifications: { Length: "16 feet", Material: "Aluminum", "Wing Type": "Manual/Hydraulic"}, isCustom: false },
+    { id: "wingvan-16", name: "16ft Wing Van", description: "16ft wing van body.", image: "/images/bodies/wing-12.jpg", compatibleSeries: ["300-series", "500-series"], price: 300000, specifications: { Length: "16 feet", Material: "Aluminum", "Wing Type": "Manual/Hydraulic"}, isCustom: false },
     { id: "custom-wing-van", name: "Custom Wing Van", description: "Specify dimensions for a custom wing van.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Wing Van" }
   ],
   "Refrigerated Van": [
@@ -367,13 +367,13 @@ export const bodyTypes: BodyTypes = {
     { id: "custom-refrigerated-van", name: "Custom Refrigerated Van", description: "Specify dimensions for a custom refrigerated van.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Refrigerated Van" }
   ],
   "Dump Truck": [
-    { id: "dt-small", name: "Small Dump Truck (3-5 cu.m)", description: "For 200/300 series.", image: "/images/bodies/dump-small.jpg", compatibleSeries: ["200-series", "300-series"], price: 280000, specifications: { Capacity: "3-5 cubic meters", Material: "High-tensile steel" }, isCustom: false },
-    { id: "dt-large", name: "Large Dump Truck (6-10 cu.m)", description: "For 500 series.", image: "/images/bodies/dump-6.jpg", compatibleSeries: ["500-series"], price: 350000, specifications: { Capacity: "6-10 cubic meters", Material: "High-tensile steel" }, isCustom: false },
+    { id: "dt-small", name: "Small Dump Truck (3-5 cu.m)", description: "For 200/300 series.", image: "/images/bodies/dump.jpg", compatibleSeries: ["200-series", "300-series"], price: 280000, specifications: { Capacity: "3-5 cubic meters", Material: "High-tensile steel" }, isCustom: false },
+    { id: "dt-large", name: "Large Dump Truck (6-10 cu.m)", description: "For 500 series.", image: "/images/bodies/dump.jpg", compatibleSeries: ["500-series"], price: 350000, specifications: { Capacity: "6-10 cubic meters", Material: "High-tensile steel" }, isCustom: false },
     { id: "custom-dump-truck", name: "Custom Dump Truck", description: "Specify volume for a custom dump truck.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "volume", specifications: {}, categoryForMeasurement: "Dump Truck" }
   ],
   "Garbage Dump Truck": [
-    { id: "gdt-compact", name: "Compact Garbage Dump Truck", description: "For 200/300 series.", image: "/images/bodies/garbage-dump-compact.jpg", compatibleSeries: ["200-series", "300-series"], price: 300000, specifications: { Capacity: "Varies", Compaction: "Optional" }, isCustom: false },
-    { id: "gdt-large", name: "Large Garbage Dump Truck", description: "For 500 series.", image: "/images/bodies/garbage-dump-large.jpg", compatibleSeries: ["500-series"], price: 400000, specifications: { Capacity: "Varies", Compaction: "Standard" }, isCustom: false },
+    { id: "gdt-compact", name: "Compact Garbage Dump Truck", description: "For 200/300 series.", image: "/images/bodies/garbage-dump.jpg", compatibleSeries: ["200-series", "300-series"], price: 300000, specifications: { Capacity: "Varies", Compaction: "Optional" }, isCustom: false },
+    { id: "gdt-large", name: "Large Garbage Dump Truck", description: "For 500 series.", image: "/images/bodies/garbage-dump.jpg", compatibleSeries: ["500-series"], price: 400000, specifications: { Capacity: "Varies", Compaction: "Standard" }, isCustom: false },
     { id: "custom-garbage-dump-truck", name: "Custom Garbage Dump Truck", description: "Specify volume for a custom garbage truck.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "volume", specifications: {}, categoryForMeasurement: "Garbage Dump Truck" }
   ],
   "Fire Truck": [
@@ -388,7 +388,7 @@ export const bodyTypes: BodyTypes = {
   ],
   "Stake Truck": [
     { id: "st-10", name: "10ft Stake Truck", description: "10ft stake truck.", image: "/images/bodies/stake-truck-10.jpg", compatibleSeries: ["200-series", "300-series"], price: 130000, specifications: { Length: "10 feet" }, isCustom: false },
-    { id: "st-14", name: "14ft Stake Truck", description: "14ft stake truck.", image: "/images/bodies/stake-truck-14.jpg", compatibleSeries: ["300-series", "500-series"], price: 160000, specifications: { Length: "14 feet" }, isCustom: false },
+    { id: "st-14", name: "14ft Stake Truck", description: "14ft stake truck.", image: "/images/bodies/stake-truck-10.jpg", compatibleSeries: ["300-series", "500-series"], price: 160000, specifications: { Length: "14 feet" }, isCustom: false },
     { id: "custom-stake-truck", name: "Custom Stake Truck", description: "Specify dimensions for a custom stake truck.", image: CUSTOM_BODY_IMAGE, compatibleSeries: ["200-series", "300-series", "500-series"], price: CUSTOM_PRICE_TEXT, isCustom: true, customMeasurementType: "lwh", specifications: {}, categoryForMeasurement: "Stake Truck" }
   ],
   "Rescue Truck": [
