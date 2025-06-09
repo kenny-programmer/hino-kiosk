@@ -141,7 +141,7 @@ export default function ModelPage() {
                 </Button>
 
                 <Button
-                  className="bg-red-600 hover:bg-red-700 text-white py-3 text-lg flex items-center justify-center"
+                  className="bg-red-600 hover:bg-red-700 text-white md:text-base py-3 text-lg flex items-center justify-center"
                   onClick={handleBuyChassisOnly}
                 >
                   <CreditCard className="mr-2 h-5 w-5" />
