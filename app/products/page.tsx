@@ -24,7 +24,7 @@ const productSeries = [
     id: "500",
     name: "500 Series",
     description:
-      "Hino 500 Series combines robust construction and powerful engines, ensuring reliability and optimal load capacity for your business.",
+      "Hino 500 Series combines robust construction and powerful engines, ensuring reliability and optimal load capacity.",
     image: "/images/500-series.png",
     link: "/products/500-series",
   },

@@ -65,7 +65,7 @@ export const seriesData: SeriesData = {
         airconditioned: false,
       },
       {
-        id: "315", name: "315", description: "The compact Hino 200 Series 315 offers agile maneuverability for efficient urban deliveries in tight spaces.",
+        id: "315", name: "315", description: "The compact Hino 200 Series 315 offers agile maneuverability for efficient urban deliveries in tight spaces that can be used in your business.",
         image: "/images/200-series-315-nac.png", price: 1300000,
         bodyType: ["Multipurpose Van", "Dropside", "Aluminum Van", "Wing Van", "Refrigerated Van", "Stake Truck", "Dump Truck", "Garbage Dump Truck", "Fire Truck", "Water Tanker"],
         engine: "J05E-TP Diesel Engine",

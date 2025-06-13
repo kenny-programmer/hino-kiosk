@@ -1,9 +1,9 @@
 "use client";
 
-import type ReactImport from "react";
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import emailjs from "@emailjs/browser";
 import jsPDF from "jspdf";
@@ -18,6 +18,7 @@ import {
   FileText,
   Printer,
   CheckCircle,
+  Wrench,
 } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 import { CartItem } from "@/context/cart-context";
@@ -59,18 +60,15 @@ interface OrderDataForExport {
 const CUSTOM_BODY_IMAGE_PLACEHOLDER = "/images/bodies/custom-placeholder.jpg";
 const CUSTOM_PRICE_TEXT = "Price varies";
 
-const getDisplayName = (item: {
-  name: string;
-  type: "chassis" | "body" | "bus" | "puv";
-}): string => {
-  if (item.type === "chassis" && item.name.includes(" with ")) {
-    return item.name.split(" with ")[0];
-  }
-  return item.name;
-};
-
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const router = useRouter();
+  const {
+    cart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    lastProductPageUrl,
+  } = useCart();
   const { toast } = useToast();
   const [showFormDialog, setShowFormDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -85,6 +83,15 @@ export default function CartPage() {
   const [lastSuccessfulOrder, setLastSuccessfulOrder] =
     useState<OrderDataForExport | null>(null);
 
+  const handleRemoveFromCart = (itemId: string) => {
+    removeFromCart(itemId);
+    toast({
+      title: "Item Removed",
+      description: "The item has been removed from your cart.",
+      variant: "destructive",
+    });
+  };
+
   const formatDisplayPrice = (
     priceInput: number | string | undefined
   ): string => {
@@ -94,25 +101,25 @@ export default function CartPage() {
     return "N/A";
   };
 
-  const calculateTotalPriceDisplay = (): string => {
+  const totalPriceDisplay = useMemo(() => {
     let numericTotal = 0;
     let hasVariablePriceItem = false;
     cart.forEach((item: CartItem) => {
-      if (item.type === "chassis" && typeof item.price === "number")
+      if (typeof item.price === "number") {
         numericTotal += item.price * item.quantity;
-      if (item.selectedBody?.isCustom) hasVariablePriceItem = true;
-      else if (item.type === "body" && typeof item.price === "number")
-        numericTotal += item.price * item.quantity;
+      } else {
+        hasVariablePriceItem = true;
+      }
     });
+
     if (hasVariablePriceItem) {
-      return (
-        (numericTotal > 0 ? `PHP ${numericTotal.toLocaleString()} + ` : "") +
-        "Custom Body Costs"
-      );
+      const basePriceString =
+        numericTotal > 0 ? `PHP ${numericTotal.toLocaleString()} + ` : "";
+      return `${basePriceString}Custom Body Costs`;
     }
+
     return `PHP ${numericTotal.toLocaleString()}`;
-  };
-  const totalPriceDisplay = calculateTotalPriceDisplay();
+  }, [cart]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -179,16 +186,14 @@ export default function CartPage() {
         yPosition = 20;
       }
 
-      const displayName = getDisplayName(item);
+      const displayName =
+        item.type === "chassis"
+          ? `${item.name.split(" (")[0]} (Chassis)`
+          : item.name;
       let totalText: string;
 
-      if (
-        item.type === "chassis" ||
-        (item.type === "body" && !item.selectedBody?.isCustom)
-      ) {
-        totalText = `PHP ${(
-          (item.price as number) * item.quantity
-        ).toLocaleString()}`;
+      if (typeof item.price === "number") {
+        totalText = `PHP ${(item.price * item.quantity).toLocaleString()}`;
       } else {
         totalText = CUSTOM_PRICE_TEXT;
       }
@@ -211,9 +216,20 @@ export default function CartPage() {
     return pdf;
   };
 
+  // MODIFIED FUNCTION
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
+
+    // Create a new customer info object with uppercase values for relevant fields
+    const uppercasedCustomerInfo = {
+      fullName: customerInfo.fullName.toUpperCase(),
+      email: customerInfo.email, // Email should not be uppercased
+      phone: customerInfo.phone,
+      barangay: customerInfo.barangay.toUpperCase(),
+      city: customerInfo.city.toUpperCase(),
+      province: customerInfo.province.toUpperCase(),
+    };
 
     const orderId = `HMP-${Date.now().toString().slice(-6)}`;
 
@@ -227,9 +243,10 @@ export default function CartPage() {
       type: item.type,
     }));
 
+    // Use the new uppercased object to create the final order data
     const orderData: OrderDataForExport = {
       orderId,
-      customer: customerInfo,
+      customer: uppercasedCustomerInfo,
       items: itemsForExport,
       total: totalPriceDisplay,
       orderDate: new Date().toISOString(),
@@ -252,20 +269,21 @@ export default function CartPage() {
           ${orderData.items
             .map((item) => {
               let priceText: string;
-              const displayName = getDisplayName(item);
-              if (
-                item.type === "chassis" ||
-                (item.type === "body" && !item.selectedBody?.isCustom)
-              ) {
-                priceText = `₱${(
-                  (item.price as number) * item.quantity
-                ).toLocaleString()}`;
+              const displayName =
+                item.type === "chassis"
+                  ? `${item.name.split(" (")[0]} (Chassis)`
+                  : item.name;
+
+              if (typeof item.price === "number") {
+                priceText = `₱${(item.price * item.quantity).toLocaleString()}`;
               } else {
                 priceText = CUSTOM_PRICE_TEXT;
               }
               return `
                 <tr style="border-bottom: 1px solid #eee;">
-                  <td style="padding: 10px 5px;">${displayName} × ${item.quantity}</td>
+                  <td style="padding: 10px 5px;">${displayName} × ${
+                    item.quantity
+                  }</td>
                   <td style="padding: 10px 5px; text-align: right;">${priceText}</td>
                 </tr>
               `;
@@ -274,13 +292,13 @@ export default function CartPage() {
         </table>
       `;
 
+      // The commonEmailParams will now automatically use the uppercased data from orderData
       const commonEmailParams = {
-        from_name: "Hino Motors Philippines - Batangas",
         order_id: orderData.orderId,
         customer_name: orderData.customer.fullName,
         customer_email: orderData.customer.email,
         customer_address: `${orderData.customer.barangay}, ${orderData.customer.city}, ${orderData.customer.province}`,
-        customer_number: orderData.customer.phone, // <-- ADD THIS LINE
+        customer_number: orderData.customer.phone,
         order_items_html: itemsHtml,
         order_total: orderData.total,
       };
@@ -379,6 +397,7 @@ export default function CartPage() {
     );
   }
 
+  // UPDATED "EMPTY CART" VIEW
   if (cart.length === 0) {
     return (
       <div className="container mx-auto py-12 px-4 text-center">
@@ -388,34 +407,50 @@ export default function CartPage() {
         <p className="mb-8 text-gray-700">
           Looks like you haven't added any products yet.
         </p>
-        <Link href="/products">
-          <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
-            Browse Products
-          </Button>
-        </Link>
+        <div className="flex justify-center items-center">
+          <Link href="/products">
+            <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
+              Browse Products
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-black">Your Cart</h1>
+      <div className="mb-6">
+        <Button
+          variant="outline"
+          onClick={() => router.back()}
+          className="text-gray-700 border-gray-300 hover:bg-gray-50"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Go Back
+        </Button>
+      </div>
+
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-black">Your Cart</h1>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className="border rounded-lg overflow-hidden bg-white shadow-md">
-            <div className="bg-gray-50 p-4 font-semibold grid grid-cols-12 gap-4 text-gray-600 text-sm border-b border-gray-200">
-              <div className="col-span-6">Product</div>
-              <div className="col-span-2 text-center">Unit Price</div>
-              <div className="col-span-2 text-center">Quantity</div>
-              <div className="col-span-2 text-center">Subtotal</div>
+            <div className="hidden md:flex bg-gray-50 p-4 font-semibold text-gray-600 text-sm border-b border-gray-200">
+              <div className="w-1/2 lg:w-5/12">Product</div>
+              <div className="w-1/4 lg:w-2/12 text-center">Unit Price</div>
+              <div className="w-1/4 lg:w-3/12 text-center">Quantity</div>
+              <div className="w-1/4 lg:w-2/12 text-right">Subtotal</div>
             </div>
             <div className="divide-y divide-gray-200">
               {cart.map((item: CartItem) => (
                 <div
                   key={item.id}
-                  className="p-4 grid grid-cols-12 gap-4 items-center"
+                  className="p-4 flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0"
                 >
-                  <div className="col-span-6 flex items-center space-x-3">
+                  <div className="w-full md:w-1/2 lg:w-5/12 flex items-center space-x-4">
                     <div className="relative h-16 w-16 flex-shrink-0">
                       <Image
                         src={
@@ -426,21 +461,23 @@ export default function CartPage() {
                         alt={item.name}
                         fill
                         style={{ objectFit: "contain" }}
-                        onError={(e) =>
-                          (e.currentTarget.src = "/placeholder.svg")
-                        }
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
                       />
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-800">
-                        {getDisplayName(item)}
+                        {item.type === "chassis"
+                          ? `${item.name.split(" (")[0]} (Chassis)`
+                          : item.name}
                       </h3>
                       <p className="text-sm text-gray-500">
                         {item.type === "chassis"
-                          ? "Chassis"
+                          ? "Chassis Only"
                           : item.selectedBody?.isCustom
-                          ? "Custom Body Specification"
-                          : "Standard Body"}
+                            ? "Custom Body Specification"
+                            : "Standard Body"}
                       </p>
                       {item.type === "body" && item.selectedBody?.isCustom && (
                         <div className="text-xs text-gray-500 mt-1 leading-tight">
@@ -476,53 +513,73 @@ export default function CartPage() {
                               </span>
                             </p>
                           ) : null}
+                          {item.selectedBody.isAirconditioned && (
+                            <p className="text-blue-600 font-medium mt-1">
+                              Aircon: Yes
+                              {item.selectedBody.airconDetails && (
+                                <span className="font-normal text-gray-500">
+                                  {" "}
+                                  ({item.selectedBody.airconDetails})
+                                </span>
+                              )}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
                   </div>
-                  <div className="col-span-2 text-center text-gray-700">
-                    {item.type === "body" && item.selectedBody?.isCustom
-                      ? CUSTOM_PRICE_TEXT
-                      : formatDisplayPrice(item.price)}
-                  </div>
-                  <div className="col-span-2 text-center">
-                    <div className="flex items-center justify-center">
-                      <button
-                        className="px-2 py-1 border rounded-l-md text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
-                        }
-                        disabled={item.quantity <= 1}
-                      >
-                        –
-                      </button>
-                      <span className="px-3 py-1 border-t border-b text-gray-700">
-                        {item.quantity}
+
+                  <div className="w-full md:w-1/2 lg:w-7/12 flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0">
+                    <div className="w-full md:w-1/3 lg:w-3/12 text-left md:text-center">
+                      <span className="md:hidden font-semibold mr-2">
+                        Price:
+                      </span>
+                      <span>
+                        {typeof item.price === "number"
+                          ? formatDisplayPrice(item.price)
+                          : CUSTOM_PRICE_TEXT}
+                      </span>
+                    </div>
+                    <div className="w-full md:w-1/3 lg:w-5/12 flex items-center justify-start md:justify-center">
+                      <div className="flex items-center">
+                        <button
+                          className="px-2 py-1 border rounded-l-md text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                          disabled={item.quantity <= 1}
+                        >
+                          –
+                        </button>
+                        <span className="px-3 py-1 border-t border-b text-gray-700">
+                          {item.quantity}
+                        </span>
+                        <button
+                          className="px-2 py-1 border rounded-r-md text-gray-700 hover:bg-gray-100"
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <div className="w-full md:w-1/3 lg:w-4/12 flex justify-between items-center text-left md:text-right">
+                      <span className="md:hidden font-semibold mr-2">
+                        Subtotal:
+                      </span>
+                      <span className="font-medium text-gray-800">
+                        {typeof item.price === "number"
+                          ? formatDisplayPrice(item.price * item.quantity)
+                          : CUSTOM_PRICE_TEXT}
                       </span>
                       <button
-                        className="px-2 py-1 border rounded-r-md text-gray-700 hover:bg-gray-100"
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
+                        onClick={() => handleRemoveFromCart(item.id)}
+                        className="text-red-500 hover:text-red-700 p-1 ml-2"
                       >
-                        +
+                        <Trash2 className="h-5 w-5" />
                       </button>
                     </div>
-                  </div>
-                  <div className="col-span-2 text-center flex items-center justify-end space-x-2">
-                    <span className="text-gray-800 font-medium">
-                      {item.type === "body" && item.selectedBody?.isCustom
-                        ? CUSTOM_PRICE_TEXT
-                        : typeof item.price === "number"
-                        ? formatDisplayPrice(item.price * item.quantity)
-                        : formatDisplayPrice(item.price)}
-                    </span>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-red-500 hover:text-red-700 p-1"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
                   </div>
                 </div>
               ))}
@@ -551,14 +608,15 @@ export default function CartPage() {
                   className="flex justify-between text-gray-700 text-sm"
                 >
                   <span className="flex-1 truncate pr-2">
-                    {getDisplayName(item)} x{item.quantity}
+                    {item.type === "chassis"
+                      ? `${item.name.split(" (")[0]} (Chassis)`
+                      : item.name}{" "}
+                    x{item.quantity}
                   </span>
                   <span className="whitespace-nowrap">
-                    {item.type === "body" && item.selectedBody?.isCustom
-                      ? CUSTOM_PRICE_TEXT
-                      : typeof item.price === "number"
+                    {typeof item.price === "number"
                       ? formatDisplayPrice(item.price * item.quantity)
-                      : formatDisplayPrice(item.price)}
+                      : CUSTOM_PRICE_TEXT}
                   </span>
                 </div>
               ))}
@@ -581,14 +639,20 @@ export default function CartPage() {
       </div>
 
       <Dialog open={showFormDialog} onOpenChange={setShowFormDialog}>
-        <DialogContent className="sm:max-w-[500px] p-6">
+        <DialogContent
+          className="sm:max-w-[500px] p-6 flex flex-col max-h-[90vh]"
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
           <>
             <DialogHeader>
               <DialogTitle className="text-2xl font-semibold text-gray-800">
                 Customer Information
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleFormSubmit} className="space-y-4 pt-2">
+            <form
+              onSubmit={handleFormSubmit}
+              className="space-y-4 pt-2 overflow-y-auto pr-4 -mr-4"
+            >
               <div>
                 <Label htmlFor="fullName" className="text-gray-700">
                   Full Name *

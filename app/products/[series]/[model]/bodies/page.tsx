@@ -1,7 +1,7 @@
 // app/products/[series]/[model]/bodies/page.tsx
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -20,16 +20,20 @@ import CustomBodyForm, {
 import { useCart, CartItem } from "@/context/cart-context";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp, ArrowLeft } from "lucide-react"; // <-- Import ArrowLeft
 
 export default function ProductBodyConfigurationPage() {
-  const router = useRouter();
+  const router = useRouter(); // <-- Get the router instance
   const params = useParams();
-  const { addToCart } = useCart();
+  const pathname = usePathname();
+  const { addToCart, setLastProductPageUrl } = useCart();
   const { toast } = useToast();
 
   const seriesSlug = typeof params.series === "string" ? params.series : "";
   const modelId = typeof params.model === "string" ? params.model : "";
 
+  const [isChassisExpanded, setIsChassisExpanded] = useState(false);
+  const [isBodyExpanded, setIsBodyExpanded] = useState(false);
   const [chassisDetails, setChassisDetails] = useState<ChassisModel | null>(
     null
   );
@@ -49,6 +53,12 @@ export default function ProductBodyConfigurationPage() {
   const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false);
 
   useEffect(() => {
+    if (pathname) {
+      setLastProductPageUrl(pathname);
+    }
+  }, [pathname, setLastProductPageUrl]);
+
+  useEffect(() => {
     async function fetchData() {
       if (seriesSlug && modelId) {
         setIsLoading(true);
@@ -66,8 +76,6 @@ export default function ProductBodyConfigurationPage() {
           }
         } catch (e) {
           setError("Failed to load product information.");
-          setChassisDetails(null);
-          setSeriesDetails(null);
         } finally {
           setIsLoading(false);
         }
@@ -85,8 +93,6 @@ export default function ProductBodyConfigurationPage() {
       setAvailableBodyCategories(
         Array.from(new Set(["All Categories", ...categories]))
       );
-    } else {
-      setAvailableBodyCategories(["All Categories"]);
     }
   }, [seriesSlug, chassisDetails]);
 
@@ -98,14 +104,10 @@ export default function ProductBodyConfigurationPage() {
         modelId
       );
       setAvailableBodies(bodies);
-      if (selectedBody && !bodies.find((b) => b.id === selectedBody.id)) {
+      if (selectedBody && !bodies.some((b) => b.id === selectedBody.id)) {
         setSelectedBody(null);
         setCustomDimensions({});
       }
-    } else {
-      setAvailableBodies([]);
-      setSelectedBody(null);
-      setCustomDimensions({});
     }
   }, [selectedBodyCategory, seriesSlug, modelId, chassisDetails, selectedBody]);
 
@@ -115,49 +117,56 @@ export default function ProductBodyConfigurationPage() {
     setCustomDimensions({});
   }, []);
 
-  const handleBodySelect = useCallback(
-    (body: BodyVariant) => {
+  const handleBodySelect = (body: BodyVariant) => {
+    if (selectedBody?.id === body.id) {
+      setSelectedBody(null);
+      setCustomDimensions({});
+    } else {
       setSelectedBody(body);
-      const initialBodyType = body.isCustom
-        ? customDimensions.bodyId === body.id && customDimensions.bodyType
-          ? customDimensions.bodyType
-          : body.name
-        : undefined;
-      if (customDimensions.bodyId !== body.id) {
-        setCustomDimensions({ bodyId: body.id, bodyType: initialBodyType });
-      } else {
-        setCustomDimensions((prev) => ({
-          ...prev,
-          bodyId: body.id,
-          bodyType: initialBodyType,
-        }));
-      }
-    },
-    [customDimensions]
-  );
+      setIsBodyExpanded(false);
+      const initialBodyType = body.isCustom ? body.name : undefined;
+      setCustomDimensions({ bodyId: body.id, bodyType: initialBodyType });
+    }
+  };
 
-  const handleDimensionsChange = useCallback(
-    (dimensions: CustomDimensionData) => {
-      setCustomDimensions((prev) => ({ ...prev, ...dimensions }));
-    },
-    []
-  );
+  const handleDimensionsChange = (
+    field: keyof CustomDimensionData,
+    value: string | boolean
+  ) => {
+    setCustomDimensions((prev) => {
+      const newDims = { ...prev, [field]: value };
+      if (field === "isAirconditioned" && !value) {
+        newDims.airconDetails = "";
+      }
+      return newDims;
+    });
+  };
 
   const validateCustomDimensions = useCallback((): boolean => {
     if (!selectedBody?.isCustom) return true;
     const { bodyType, length, width, height, cubicMeter, liters } =
       customDimensions;
-    if (!bodyType || String(bodyType).trim() === "") return false;
-    if (selectedBody.customMeasurementType === "detailed") {
-      const hasLWH =
-        length &&
+    if (selectedBody.customMeasurementType === "lwh") {
+      return (
+        !!length &&
         String(length).trim() !== "" &&
-        width &&
+        !!width &&
         String(width).trim() !== "" &&
-        height &&
+        !!height &&
+        String(height).trim() !== ""
+      );
+    }
+    if (selectedBody.customMeasurementType === "detailed") {
+      if (!bodyType || String(bodyType).trim() === "") return false;
+      const hasLWH =
+        !!length &&
+        String(length).trim() !== "" &&
+        !!width &&
+        String(width).trim() !== "" &&
+        !!height &&
         String(height).trim() !== "";
-      const hasCubicMeter = cubicMeter && String(cubicMeter).trim() !== "";
-      const hasLiters = liters && String(liters).trim() !== "";
+      const hasCubicMeter = !!cubicMeter && String(cubicMeter).trim() !== "";
+      const hasLiters = !!liters && String(liters).trim() !== "";
       return Boolean(hasLWH || hasCubicMeter || hasLiters);
     }
     return true;
@@ -171,8 +180,7 @@ export default function ProductBodyConfigurationPage() {
     if (selectedBody.isCustom && !validateCustomDimensions()) {
       toast({
         title: "Custom Dimensions Required",
-        description:
-          "Please enter a Body Type and at least one set of dimensions (L/W/H, Cubic Meters, or Liters).",
+        description: "Please fill out all required dimension fields.",
         variant: "destructive",
       });
       return;
@@ -187,31 +195,26 @@ export default function ProductBodyConfigurationPage() {
         userSpecifiedBodyType: selectedBody.isCustom
           ? String(customDimensions.bodyType || selectedBody.name).trim()
           : selectedBody.name,
-        length: customDimensions.length
-          ? String(customDimensions.length)
-          : undefined,
-        width: customDimensions.width
-          ? String(customDimensions.width)
-          : undefined,
-        height: customDimensions.height
-          ? String(customDimensions.height)
-          : undefined,
-        cubicMeter: customDimensions.cubicMeter
-          ? String(customDimensions.cubicMeter)
-          : undefined,
-        liters: customDimensions.liters
-          ? String(customDimensions.liters)
-          : undefined,
+        length: customDimensions.length,
+        width: customDimensions.width,
+        height: customDimensions.height,
+        cubicMeter: customDimensions.cubicMeter,
+        liters: customDimensions.liters,
+        volume: customDimensions.volume,
+        isAirconditioned: customDimensions.isAirconditioned,
+        airconDetails: customDimensions.airconDetails,
       };
-      const chassisDisplayName = `${chassisDetails.name} (Chassis) with ${augBody.userSpecifiedBodyType}`;
+
+      const chassisDisplayName = `${chassisDetails.name} (Chassis)`;
       addToCart({
-        id: `chassis-${chassisDetails.id}-${selectedBody.id}-${Date.now()}`,
+        id: `chassis-${chassisDetails.id}`,
         name: chassisDisplayName,
         price: chassisDetails.price,
         image: chassisDetails.image,
         type: "chassis",
         selectedBody: augBody,
-      } as Omit<CartItem, "quantity"> & { quantity: number });
+      } as Omit<CartItem, "quantity">);
+
       let bodyItemDisplayName = `${selectedBody.name} (Body)`;
       if (selectedBody.isCustom) {
         let sizeString = "";
@@ -219,25 +222,33 @@ export default function ProductBodyConfigurationPage() {
           sizeString = `(${augBody.length}ft x ${augBody.width}ft x ${augBody.height}ft)`;
         else if (augBody.cubicMeter) sizeString = `(${augBody.cubicMeter} m³)`;
         else if (augBody.liters) sizeString = `(${augBody.liters} L)`;
+        else if (augBody.volume) sizeString = `(${augBody.volume} cu.ft)`;
         bodyItemDisplayName =
           `Custom Body (${augBody.userSpecifiedBodyType}) ${sizeString}`.trim();
       }
+
+      if (augBody.isAirconditioned) {
+        bodyItemDisplayName += " w/ Aircon";
+      }
+
       addToCart({
-        id: `body-${selectedBody.id}-${Date.now()}`,
+        id: `body-${selectedBody.id}`,
         name: bodyItemDisplayName,
         price: selectedBody.isCustom
-          ? 0
+          ? CUSTOM_PRICE_TEXT
           : typeof selectedBody.price === "number"
-          ? selectedBody.price
-          : 0,
+            ? selectedBody.price
+            : String(selectedBody.price),
         image: selectedBody.image,
         type: "body",
         selectedBody: augBody,
-      });
+      } as Omit<CartItem, "quantity">);
+
       toast({
-        title: "Added to Cart",
-        description: `${chassisDisplayName} has been added.`,
+        title: "Package Added to Cart",
+        description: `${chassisDisplayName} and a body have been added.`,
       });
+
       setSelectedBody(null);
       setCustomDimensions({});
     } catch (error) {
@@ -269,18 +280,19 @@ export default function ProductBodyConfigurationPage() {
     }
   }, [selectedBody, handleAddToCart, router, toast, isAddingToCart]);
 
-  // ... The rest of the JSX for this page is complex but doesn't need changes.
-  // The provided code is complete and functional for this component.
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow-sm">
         <div className="container mx-auto py-3 sm:py-4 px-4 sm:px-6 lg:px-8">
-          <Link
-            href={`/products/${seriesSlug}`}
-            className="text-red-600 hover:text-red-800 text-sm"
+          {/* ======================= NEW BACK BUTTON ======================= */}
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center text-red-600 hover:text-red-800 text-sm"
           >
-            ← Back to {seriesDetails?.title || seriesSlug}
-          </Link>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            <span>Back to {seriesDetails?.title || "Products"}</span>
+          </button>
+          {/* =============================================================== */}
         </div>
       </header>
       <main className="container mx-auto py-4 md:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
@@ -313,9 +325,17 @@ export default function ProductBodyConfigurationPage() {
           </aside>
           <section className="md:col-span-2 lg:col-span-3 space-y-4 md:space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div className="bg-white p-4 md:p-5 rounded-lg shadow-md">
-                <h3 className="text-md font-semibold text-gray-600 mb-3">
-                  Selected Chassis
+              <div
+                className="bg-white p-4 md:p-5 rounded-lg shadow-md cursor-pointer transition-all"
+                onClick={() => setIsChassisExpanded((prev) => !prev)}
+              >
+                <h3 className="text-md font-semibold text-gray-600 mb-3 flex justify-between items-center">
+                  <span>Selected Chassis</span>
+                  {isChassisExpanded ? (
+                    <ChevronUp className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-gray-500" />
+                  )}
                 </h3>
                 {chassisDetails && (
                   <div className="flex items-center space-x-3">
@@ -324,13 +344,21 @@ export default function ProductBodyConfigurationPage() {
                       alt={chassisDetails.name}
                       width={64}
                       height={48}
-                      className="rounded object-contain"
+                      className="rounded object-contain flex-shrink-0"
                     />
-                    <div>
-                      <p className="font-semibold text-gray-800">
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`font-semibold text-gray-800 ${
+                          isChassisExpanded ? "whitespace-normal" : "truncate"
+                        }`}
+                      >
                         {chassisDetails.name}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p
+                        className={`text-xs text-gray-500 ${
+                          isChassisExpanded ? "whitespace-normal" : "truncate"
+                        }`}
+                      >
                         {chassisDetails.description}
                       </p>
                       <p className="text-red-600 font-bold mt-0.5">
@@ -340,9 +368,20 @@ export default function ProductBodyConfigurationPage() {
                   </div>
                 )}
               </div>
-              <div className="bg-white p-4 md:p-5 rounded-lg shadow-md">
-                <h3 className="text-md font-semibold text-gray-600 mb-3">
-                  Selected Body
+              <div
+                className="bg-white p-4 md:p-5 rounded-lg shadow-md cursor-pointer transition-all"
+                onClick={() =>
+                  selectedBody && setIsBodyExpanded((prev) => !prev)
+                }
+              >
+                <h3 className="text-md font-semibold text-gray-600 mb-3 flex justify-between items-center">
+                  <span>Selected Body</span>
+                  {selectedBody &&
+                    (isBodyExpanded ? (
+                      <ChevronUp className="h-5 w-5 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-gray-500" />
+                    ))}
                 </h3>
                 {selectedBody ? (
                   <div className="flex items-center space-x-3">
@@ -351,23 +390,31 @@ export default function ProductBodyConfigurationPage() {
                       alt={selectedBody.name}
                       width={64}
                       height={48}
-                      className="rounded object-contain"
+                      className="rounded object-contain flex-shrink-0"
                     />
-                    <div>
-                      <p className="font-semibold text-gray-800">
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`font-semibold text-gray-800 ${
+                          isBodyExpanded ? "whitespace-normal" : "truncate"
+                        }`}
+                      >
                         {selectedBody.isCustom && customDimensions.bodyType
                           ? String(customDimensions.bodyType)
                           : selectedBody.name}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p
+                        className={`text-xs text-gray-500 ${
+                          isBodyExpanded ? "whitespace-normal" : "truncate"
+                        }`}
+                      >
                         {selectedBody.description}
                       </p>
                       <p className="text-red-600 font-bold mt-0.5">
                         {selectedBody.isCustom
                           ? CUSTOM_PRICE_TEXT
                           : typeof selectedBody.price === "number"
-                          ? `PHP ${selectedBody.price.toLocaleString()}`
-                          : String(selectedBody.price)}
+                            ? `PHP ${selectedBody.price.toLocaleString()}`
+                            : String(selectedBody.price)}
                       </p>
                     </div>
                   </div>
@@ -428,8 +475,8 @@ export default function ProductBodyConfigurationPage() {
                             {body.isCustom
                               ? CUSTOM_PRICE_TEXT
                               : typeof body.price === "number"
-                              ? `PHP ${body.price.toLocaleString()}`
-                              : String(body.price)}
+                                ? `PHP ${body.price.toLocaleString()}`
+                                : String(body.price)}
                           </p>
                         </div>
                       </div>
@@ -448,12 +495,8 @@ export default function ProductBodyConfigurationPage() {
               <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
                 <CustomBodyForm
                   selectedBody={selectedBody}
+                  dimensions={customDimensions}
                   onDimensionsChange={handleDimensionsChange}
-                  initialDimensions={
-                    customDimensions.bodyId === selectedBody.id
-                      ? customDimensions
-                      : { bodyId: selectedBody.id, bodyType: selectedBody.name }
-                  }
                 />
               </div>
             )}
@@ -488,7 +531,7 @@ export default function ProductBodyConfigurationPage() {
                   disabled={!selectedBody || isAddingToCart}
                   size="lg"
                 >
-                  {isAddingToCart ? "Adding..." : "Add to Package Cart"}
+                  {isAddingToCart ? "Adding..." : "Add Package to Cart"}
                 </Button>
                 <Button
                   onClick={handleBuyNow}
