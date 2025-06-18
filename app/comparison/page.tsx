@@ -1,250 +1,147 @@
+// context/cart-context.tsx
 "use client";
 
-import { useComparison } from "@/context/comparison-context";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, X, ShoppingCart } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useCart } from "@/context/cart-context";
-import { useToast } from "@/components/ui/use-toast";
+import {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+  useEffect,
+} from "react";
 
-export default function ComparisonPage() {
-  const { comparisonItems, removeFromComparison, clearComparison } =
-    useComparison();
-  const { addToCart } = useCart();
-  const { toast } = useToast();
+// Interfaces remain the same...
+export interface SelectedBody {
+  id: string;
+  name: string;
+  image?: string;
+  isCustom: boolean;
+  userSpecifiedBodyType?: string;
+  length?: string;
+  width?: string;
+  height?: string;
+  cubicMeter?: string;
+  liters?: string;
+  volume?: string;
+  isAirconditioned?: boolean;
+  airconDetails?: string;
+}
 
-  const handleAddToCart = (item: any) => {
-    addToCart({
-      id: item.id,
-      type: item.type,
-      name: item.name,
-      series: item.series,
-      model: item.model,
-      price: item.price,
-      image: item.image,
-      specifications: item.specifications,
-      selectedBody: undefined,
-    });
+// --- MODIFIED CartItem INTERFACE ---
+// This is where the fix is applied.
+export interface CartItem {
+  id: string;
+  name: string;
+  price: number | string;
+  quantity: number;
+  image: string;
+  // 1. ADDED "model" to the list of allowed types to fix the error.
+  type: "chassis" | "body" | "bus" | "puv" | "model";
+  // 2. ADDED optional properties to accept all data from the comparison page.
+  series?: string;
+  specifications?: { [key: string]: string };
+  selectedBody?: SelectedBody;
+}
+// --- END OF MODIFICATION ---
 
-    toast({
-      title: "Added to cart",
-      description: `${item.name} has been added to your cart`,
+interface CartContextType {
+  cart: CartItem[];
+  addToCart: (item: Omit<CartItem, "quantity">) => void;
+  removeFromCart: (itemId: string) => void;
+  updateQuantity: (itemId: string, quantity: number) => void;
+  clearCart: () => void;
+  lastProductPageUrl: string;
+  setLastProductPageUrl: (url: string) => void;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [lastProductPageUrl, setLastProductPageUrl] =
+    useState<string>("/products");
+
+  // ======================= YOUR EXISTING LOGIC (PRESERVED) =======================
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      try {
+        const savedCart = localStorage.getItem("shoppingCart");
+        if (savedCart) {
+          setCart(JSON.parse(savedCart));
+        }
+      } catch (error) {
+        console.error("Failed to parse cart from localStorage", error);
+      }
+    }
+  }, [isMounted]);
+
+  useEffect(() => {
+    if (isMounted) {
+      localStorage.setItem("shoppingCart", JSON.stringify(cart));
+    }
+  }, [cart, isMounted]);
+  // =========================================================================
+
+  const addToCart = (newItem: Omit<CartItem, "quantity">) => {
+    setCart((prevCart) => {
+      const existingItem = prevCart.find(
+        (cartItem) => cartItem.id === newItem.id
+      );
+
+      if (existingItem) {
+        return prevCart.map((cartItem) =>
+          cartItem.id === newItem.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        return [...prevCart, { ...newItem, quantity: 1 }];
+      }
     });
   };
 
-  const allSpecKeys = new Set<string>();
-  comparisonItems.forEach((item) => {
-    if (item.specifications) {
-      Object.keys(item.specifications).forEach((key) => allSpecKeys.add(key));
+  const removeFromCart = (itemId: string) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
+  };
+
+  const updateQuantity = (itemId: string, quantity: number) => {
+    if (quantity < 1) {
+      removeFromCart(itemId);
+      return;
     }
-  });
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === itemId ? { ...item, quantity } : item
+      )
+    );
+  };
 
-  return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center mb-6">
-        <Link href="/products" className="flex items-center text-red-600 mr-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Products
-        </Link>
-        <h1 className="text-3xl font-bold text-black">Product Comparison</h1>
-      </div>
+  const clearCart = () => {
+    setCart([]);
+  };
 
-      {comparisonItems.length === 0 ? (
-        <div className="text-center py-12 border rounded-lg bg-gray-50">
-          <h2 className="text-xl font-bold mb-4 text-black">
-            No items to compare
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Add items to comparison to see them side by side
-          </p>
-          <Link href="/products">
-            <Button className="bg-red-600 hover:bg-red-700">
-              Browse Products
-            </Button>
-          </Link>
-        </div>
-      ) : (
-        <>
-          <div className="mb-4 flex justify-end">
-            <Button
-              variant="outline"
-              className="text-red-600 border-red-600"
-              onClick={clearComparison}
-            >
-              Clear All
-            </Button>
-          </div>
+  const value = {
+    cart,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    lastProductPageUrl,
+    setLastProductPageUrl,
+  };
 
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="border bg-gray-50 p-4 text-left text-black w-1/5">
-                    Feature
-                  </th>
-                  {comparisonItems.map((item) => (
-                    <th
-                      key={item.id}
-                      className="border bg-gray-50 p-4 text-black"
-                    >
-                      <div className="relative">
-                        <button
-                          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                          onClick={() => removeFromComparison(item.id)}
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
 
-              <tbody>
-                <tr>
-                  <td className="border p-4 font-medium text-black">Image</td>
-                  {comparisonItems.map((item) => (
-                    <td key={item.id} className="border p-4 text-center">
-                      <div className="relative h-40 w-full">
-                        <Image
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.name}
-                          fill
-                          style={{ objectFit: "contain" }}
-                        />
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-
-                <tr>
-                  <td className="border p-4 font-medium text-black">Name</td>
-                  {comparisonItems.map((item) => (
-                    <td key={item.id} className="border p-4">
-                      <h3 className="font-bold text-red-600">{item.name}</h3>
-                    </td>
-                  ))}
-                </tr>
-
-                <tr>
-                  <td className="border p-4 font-medium text-black">Type</td>
-                  {comparisonItems.map((item) => (
-                    <td key={item.id} className="border p-4">
-                      <span className="capitalize">{item.type}</span>
-                    </td>
-                  ))}
-                </tr>
-
-                <tr>
-                  <td className="border p-4 font-medium text-black">Price</td>
-                  {comparisonItems.map((item) => (
-                    <td key={item.id} className="border p-4">
-                      <span className="font-bold">
-                        ₱{item.price.toLocaleString()}
-                      </span>
-                    </td>
-                  ))}
-                </tr>
-
-                {comparisonItems.some((item) => item.engine) && (
-                  <tr>
-                    <td className="border p-4 font-medium text-black">
-                      Engine
-                    </td>
-                    {comparisonItems.map((item) => (
-                      <td key={item.id} className="border p-4">
-                        {item.engine || "-"}
-                      </td>
-                    ))}
-                  </tr>
-                )}
-
-                {comparisonItems.some(
-                  (item) => typeof (item as any).airconditioned !== "undefined"
-                ) && (
-                  <tr>
-                    <td className="border p-4 font-medium text-black">
-                      Airconditioned
-                    </td>
-                    {comparisonItems.map((item) => (
-                      <td key={item.id} className="border p-4">
-                        {typeof (item as any).airconditioned !== "undefined"
-                          ? (item as any).airconditioned
-                            ? "Yes"
-                            : "No"
-                          : "-"}
-                      </td>
-                    ))}
-                  </tr>
-                )}
-
-                {comparisonItems.some((item) => item.compatibleSeries) && (
-                  <tr>
-                    <td className="border p-4 font-medium text-black">
-                      Compatible With
-                    </td>
-                    {comparisonItems.map((item) => (
-                      <td key={item.id} className="border p-4">
-                        {item.compatibleSeries ? (
-                          <div className="flex flex-wrap gap-1">
-                            {item.compatibleSeries.map((series: string) => (
-                              <span
-                                key={series}
-                                className="bg-gray-100 text-black px-2 py-1 rounded-full text-xs"
-                              >
-                                {series.replace("-", " ").toUpperCase()}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                )}
-
-                <tr className="bg-gray-50">
-                  <td
-                    colSpan={comparisonItems.length + 1}
-                    className="border p-4 font-bold text-black"
-                  >
-                    Specifications
-                  </td>
-                </tr>
-
-                {Array.from(allSpecKeys).map((key) => (
-                  <tr key={key}>
-                    <td className="border p-4 font-medium text-black">{key}</td>
-                    {comparisonItems.map((item) => (
-                      <td key={item.id} className="border p-4">
-                        {(item.specifications && item.specifications[key]) ||
-                          "-"}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-
-                <tr>
-                  <td className="border p-4 font-medium text-black">Actions</td>
-                  {comparisonItems.map((item) => (
-                    <td key={item.id} className="border p-4">
-                      <Button
-                        className="w-full bg-red-600 hover:bg-red-700 flex items-center justify-center"
-                        onClick={() => handleAddToCart(item)}
-                      >
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        Add to Cart
-                      </Button>
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-    </div>
-  );
+export function useCart() {
+  const context = useContext(CartContext);
+  if (context === undefined) {
+    throw new Error("useCart must be used within a CartProvider");
+  }
+  return context;
 }

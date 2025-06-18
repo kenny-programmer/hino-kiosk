@@ -25,15 +25,24 @@ export interface SelectedBody {
   isAirconditioned?: boolean;
   airconDetails?: string;
 }
+
+// --- MODIFIED CartItem INTERFACE ---
+// This is the change that fixes the error.
 export interface CartItem {
   id: string;
   name: string;
   price: number | string;
   quantity: number;
   image: string;
-  type: "chassis" | "body" | "bus" | "puv";
+  // 1. Added "model" to the list of allowed types.
+  type: "chassis" | "body" | "bus" | "puv" | "model";
+  // 2. Added optional `series` and `specifications` to accept all data from comparison.
+  series?: string;
+  specifications?: { [key: string]: string };
   selectedBody?: SelectedBody;
 }
+// --- END OF MODIFICATION ---
+
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => void;
@@ -51,8 +60,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [lastProductPageUrl, setLastProductPageUrl] =
     useState<string>("/products");
 
-  // ======================= HYDRATION FIX =======================
-  // This state ensures we only access localStorage on the client-side after mounting.
+  // ======================= HYDRATION FIX (Your code preserved) =======================
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
