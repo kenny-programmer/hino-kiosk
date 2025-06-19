@@ -3,7 +3,7 @@
 "use client";
 
 import { useComparison } from "@/context/comparison-context";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowLeft, X, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

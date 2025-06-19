@@ -7,7 +7,7 @@ import Image from "next/image";
 import { ShoppingCart, BarChart2 } from "lucide-react"; // Import the comparison icon
 import { useCart } from "@/context/cart-context";
 import { useComparison } from "@/context/comparison-context"; // --- 1. IMPORT USECOMPARISON ---
-import { Button } from "./ui/button"; // Import Button for consistent styling
+import { Button } from "@/components/ui/button"; // Import the Button component
 
 export default function Navbar() {
   const { cart } = useCart();
