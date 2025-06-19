@@ -27,16 +27,16 @@ export interface SelectedBody {
 }
 
 // --- MODIFIED CartItem INTERFACE ---
-// This is the change that fixes the error.
+// This is where the fix is applied.
 export interface CartItem {
   id: string;
   name: string;
   price: number | string;
   quantity: number;
   image: string;
-  // 1. Added "model" to the list of allowed types.
+  // 1. ADDED "model" to the list of allowed types to fix the error.
   type: "chassis" | "body" | "bus" | "puv" | "model";
-  // 2. Added optional `series` and `specifications` to accept all data from comparison.
+  // 2. ADDED optional properties to accept all data from the comparison page.
   series?: string;
   specifications?: { [key: string]: string };
   selectedBody?: SelectedBody;
@@ -60,7 +60,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [lastProductPageUrl, setLastProductPageUrl] =
     useState<string>("/products");
 
-  // ======================= HYDRATION FIX (Your code preserved) =======================
+  // ======================= YOUR EXISTING LOGIC (PRESERVED) =======================
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("shoppingCart", JSON.stringify(cart));
     }
   }, [cart, isMounted]);
-  // =============================================================
+  // =========================================================================
 
   const addToCart = (newItem: Omit<CartItem, "quantity">) => {
     setCart((prevCart) => {

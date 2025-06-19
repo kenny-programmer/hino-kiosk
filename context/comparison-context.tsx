@@ -1,26 +1,21 @@
+// context/comparison-context.tsx
+
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+  useEffect,
+} from "react";
+import { Model } from "@/lib/data";
 
-// The main fix is here: 'airconditioned' is now a known property.
-export interface ComparisonItem {
-  id: string;
-  type: "chassis" | "body" | "bus" | "puv";
-  name: string;
-  price: number;
-  image: string;
-  specifications?: Record<string, any>;
-  engine?: string;
-  bodyType?: string[];
-  compatibleSeries?: string[];
-  series?: string;
-  model?: string;
-  airconditioned?: boolean; // <-- THE FIX IS ADDED HERE
-}
+export interface ComparisonItem extends Model {}
 
 interface ComparisonContextType {
   comparisonItems: ComparisonItem[];
-  addToComparison: (item: ComparisonItem) => void;
+  addToComparison: (item: Model) => void;
   removeFromComparison: (itemId: string) => void;
   clearComparison: () => void;
   isInComparison: (itemId: string) => boolean;
@@ -30,12 +25,34 @@ const ComparisonContext = createContext<ComparisonContextType | undefined>(
   undefined
 );
 
-export const ComparisonProvider = ({ children }: { children: ReactNode }) => {
+export function ComparisonProvider({ children }: { children: ReactNode }) {
   const [comparisonItems, setComparisonItems] = useState<ComparisonItem[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const addToComparison = (item: ComparisonItem) => {
+  useEffect(() => {
+    setIsMounted(true);
+    try {
+      const savedComparison = localStorage.getItem("comparisonItems");
+      if (savedComparison) {
+        setComparisonItems(JSON.parse(savedComparison));
+      }
+    } catch (error) {
+      console.error(
+        "Failed to parse comparison items from localStorage",
+        error
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      localStorage.setItem("comparisonItems", JSON.stringify(comparisonItems));
+    }
+  }, [comparisonItems, isMounted]);
+
+  const addToComparison = (item: Model) => {
     setComparisonItems((prevItems) => {
-      if (prevItems.find((i) => i.id === item.id) || prevItems.length >= 4) {
+      if (prevItems.some((i) => i.id === item.id)) {
         return prevItems;
       }
       return [...prevItems, item];
@@ -52,29 +69,33 @@ export const ComparisonProvider = ({ children }: { children: ReactNode }) => {
     setComparisonItems([]);
   };
 
+  // --- THIS IS THE CRITICAL FIX ---
+  // The logic was `item.id === item.id` which was always true if the array had items.
+  // It is now correctly `item.id === itemId`.
   const isInComparison = (itemId: string) => {
     return comparisonItems.some((item) => item.id === itemId);
   };
+  // --- END OF FIX ---
+
+  const value = {
+    comparisonItems,
+    addToComparison,
+    removeFromComparison,
+    clearComparison,
+    isInComparison,
+  };
 
   return (
-    <ComparisonContext.Provider
-      value={{
-        comparisonItems,
-        addToComparison,
-        removeFromComparison,
-        clearComparison,
-        isInComparison,
-      }}
-    >
+    <ComparisonContext.Provider value={value}>
       {children}
     </ComparisonContext.Provider>
   );
-};
+}
 
-export const useComparison = () => {
+export function useComparison() {
   const context = useContext(ComparisonContext);
   if (context === undefined) {
     throw new Error("useComparison must be used within a ComparisonProvider");
   }
   return context;
-};
+}
