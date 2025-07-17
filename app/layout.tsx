@@ -30,6 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // This is the crucial fix to prevent browser extensions like Grammarly
+    // from causing a hydration error that breaks the entire application.
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />

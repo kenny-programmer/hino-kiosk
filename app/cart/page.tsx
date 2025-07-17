@@ -4,7 +4,6 @@ import { useState, ChangeEvent, FormEvent, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import emailjs from "@emailjs/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,9 +12,10 @@ import {
   CreditCard,
   ArrowLeft,
   Download,
-  FileText,
   Printer,
   CheckCircle,
+  FileText,
+  MessageSquare,
 } from "lucide-react";
 import { useCart, CartItem } from "@/context/cart-context";
 import { useToast } from "@/components/ui/use-toast";
@@ -27,7 +27,25 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import React from "react";
-import { generateOrderPDF, OrderDataForExport } from "@/lib/pdfGenerator"; // MODIFIED: Import from new utility
+// --- CORRECTED: Ensure both named exports are imported ---
+import { generateOrderPDF, OrderDataForExport } from "@/lib/pdfGenerator";
+
+// --- Imports for Supabase and Feedback ---
+import { supabase } from "@/lib/supabaseClient";
+import FeedbackDialog from "@/components/ui/FeedbackDialog";
+
+// --- Type for the successful order data from Supabase ---
+interface SuccessfulOrder {
+  id: number;
+  order_id_text: string;
+  customer_full_name: string;
+  customer_email: string;
+  customer_phone: string;
+  customer_address: string;
+  order_items: CartItem[];
+  total_price_display: string;
+  created_at: string;
+}
 
 const CUSTOM_BODY_IMAGE_PLACEHOLDER = "/images/bodies/custom-placeholder.jpg";
 const CUSTOM_PRICE_TEXT = "Price varies";
@@ -46,8 +64,10 @@ export default function CartPage() {
     city: "",
     province: "",
   });
-  const [lastSuccessfulOrder, setLastSuccessfulOrder] =
-    useState<OrderDataForExport | null>(null);
+  
+  const [lastSuccessfulOrder, setLastSuccessfulOrder] = useState<SuccessfulOrder | null>(null);
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
 
   const handleRemoveFromCart = (itemId: string) => {
     removeFromCart(itemId);
@@ -58,11 +78,8 @@ export default function CartPage() {
     });
   };
 
-  const formatDisplayPrice = (
-    priceInput: number | string | undefined
-  ): string => {
-    if (typeof priceInput === "number")
-      return `₱${priceInput.toLocaleString()}`;
+  const formatDisplayPrice = (priceInput: number | string | undefined): string => {
+    if (typeof priceInput === "number") return `₱${priceInput.toLocaleString()}`;
     if (typeof priceInput === "string") return priceInput;
     return "N/A";
   };
@@ -79,8 +96,7 @@ export default function CartPage() {
     });
 
     if (hasVariablePriceItem) {
-      const basePriceString =
-        numericTotal > 0 ? `PHP ${numericTotal.toLocaleString()} + ` : "";
+      const basePriceString = numericTotal > 0 ? `PHP ${numericTotal.toLocaleString()} + ` : "";
       return `${basePriceString}Custom Body Costs`;
     }
 
@@ -95,97 +111,39 @@ export default function CartPage() {
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
+    const orderIdText = `HB-${Date.now().toString().slice(-6)}`;
+    const fullAddress = `${customerInfo.barangay}, ${customerInfo.city}, ${customerInfo.province}`.toUpperCase();
 
-    const uppercasedCustomerInfo = {
-      fullName: customerInfo.fullName.toUpperCase(),
-      email: customerInfo.email,
-      phone: customerInfo.phone,
-      barangay: customerInfo.barangay.toUpperCase(),
-      city: customerInfo.city.toUpperCase(),
-      province: customerInfo.province.toUpperCase(),
-    };
-
-    const orderId = `HB-${Date.now().toString().slice(-6)}`;
-
-    const orderData: OrderDataForExport = {
-      orderId,
-      customer: uppercasedCustomerInfo,
-      items: cart, // The cart items already match the OrderExportItem structure
-      total: totalPriceDisplay,
-      orderDate: new Date().toISOString(),
+    const orderData = {
+      order_id_text: orderIdText,
+      customer_full_name: customerInfo.fullName.toUpperCase(),
+      customer_email: customerInfo.email,
+      customer_phone: customerInfo.phone,
+      customer_address: fullAddress,
+      order_items: cart,
+      total_price_display: totalPriceDisplay,
     };
 
     try {
-      toast({ title: "Processing Your Order..." });
-
-      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
-      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
-      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
-      const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL!; // MODIFIED: Get admin email from env
-
-      if (!serviceId || !templateId || !publicKey || !adminEmail) {
-        // MODIFIED: Check for admin email
-        throw new Error(
-          "EmailJS or Admin Email environment variables are not configured."
-        );
-      }
-      emailjs.init(publicKey);
-
-      const itemsHtml = `
-        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px;">
-          ${orderData.items
-            .map((item) => {
-              const displayName =
-                item.type === "chassis"
-                  ? `${item.name.split(" (")[0]} (Chassis)`
-                  : item.name;
-              const priceText =
-                typeof item.price === "number"
-                  ? `₱${(item.price * item.quantity).toLocaleString()}`
-                  : CUSTOM_PRICE_TEXT;
-              return `<tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px 5px;">${displayName} × ${item.quantity}</td><td style="padding: 10px 5px; text-align: right;">${priceText}</td></tr>`;
-            })
-            .join("")}
-        </table>`;
-
-      const commonEmailParams = {
-        order_id: orderData.orderId,
-        customer_name: orderData.customer.fullName,
-        customer_email: orderData.customer.email,
-        customer_address: `${orderData.customer.barangay}, ${orderData.customer.city}, ${orderData.customer.province}`,
-        customer_number: orderData.customer.phone,
-        order_items_html: itemsHtml,
-        order_total: orderData.total,
-      };
-
-      const sendAdminEmail = emailjs.send(serviceId, templateId, {
-        ...commonEmailParams,
-        to_email: adminEmail,
-        reply_to: orderData.customer.email,
-      });
-      const sendCustomerEmail = emailjs.send(serviceId, templateId, {
-        ...commonEmailParams,
-        to_email: orderData.customer.email,
-        reply_to: adminEmail,
-      });
-
-      await Promise.all([sendAdminEmail, sendCustomerEmail]);
-
+      toast({ title: "Submitting Your Order..." });
+      const { data, error } = await supabase
+        .from('orders')
+        .insert([orderData])
+        .select()
+        .single();
+      if (error) throw error;
       toast({
         title: "Order Submitted Successfully",
-        description: "A confirmation has been sent to your email.",
+        description: "Your order has been recorded.",
       });
       clearCart();
-      setLastSuccessfulOrder(orderData);
+      setLastSuccessfulOrder(data);
       setShowFormDialog(false);
     } catch (error: any) {
-      console.error("EmailJS raw error object:", error);
-      const errorMessage =
-        error.text ||
-        "An unknown error occurred. Check console and EmailJS dashboard.";
+      console.error("Supabase insert error:", error);
       toast({
-        title: "Email Sending Failed",
-        description: `Error: ${errorMessage}`,
+        title: "Order Submission Failed",
+        description: `Error: ${error.message}`,
         variant: "destructive",
         duration: 9000,
       });
@@ -193,65 +151,130 @@ export default function CartPage() {
       setIsProcessing(false);
     }
   };
+  
+  const handleFeedbackSubmit = async (rating: number, comment: string) => {
+    if (!lastSuccessfulOrder) return;
+    setIsSubmittingFeedback(true);
+    const feedbackData = {
+      order_id: lastSuccessfulOrder.id,
+      rating: rating,
+      comment: comment,
+    };
+    try {
+      const { error } = await supabase.from('feedback').insert([feedbackData]);
+      if (error) throw error;
+      toast({
+        title: "Feedback Submitted",
+        description: "Thank you for your valuable input!",
+      });
+      setShowFeedbackDialog(false);
+    } catch (error: any) {
+      console.error("Feedback submission error:", error);
+      toast({
+        title: "Feedback Submission Failed",
+        description: "Could not submit your feedback. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingFeedback(false);
+    }
+  };
+
+  // --- CORRECTED: The PDF generation functions ---
+  const createPdfData = (): OrderDataForExport | null => {
+    if (!lastSuccessfulOrder) return null;
+
+    // This "translates" the Supabase data format into the format your PDF generator expects.
+    return {
+      orderId: lastSuccessfulOrder.order_id_text,
+      orderDate: lastSuccessfulOrder.created_at,
+      total: lastSuccessfulOrder.total_price_display,
+      items: lastSuccessfulOrder.order_items,
+      customer: {
+        fullName: lastSuccessfulOrder.customer_full_name,
+        email: lastSuccessfulOrder.customer_email,
+        phone: lastSuccessfulOrder.customer_phone,
+        // The address fields from the form are now combined in the DB, so we use the single field.
+        barangay: lastSuccessfulOrder.customer_address, 
+        city: '', // This is now part of the combined address.
+        province: '', // This is now part of the combined address.
+      },
+    };
+  };
 
   const handlePrint = async () => {
-    if (lastSuccessfulOrder) {
+    const pdfData = createPdfData();
+    if (pdfData) {
       toast({ title: "Generating PDF for printing..." });
-      const pdfDoc = await generateOrderPDF(lastSuccessfulOrder); // MODIFIED: Use imported function
+      const pdfDoc = await generateOrderPDF(pdfData); 
       pdfDoc.autoPrint();
       pdfDoc.output("dataurlnewwindow");
     }
   };
-
+  
   const handleDownloadPDF = async () => {
-    if (lastSuccessfulOrder) {
-      toast({ title: "Generating PDF for download..." });
-      const pdfDoc = await generateOrderPDF(lastSuccessfulOrder); // MODIFIED: Use imported function
-      pdfDoc.save(`Hino-Order-Receipt-${lastSuccessfulOrder.orderId}.pdf`);
+    const pdfData = createPdfData();
+    if (pdfData) {
+       toast({ title: "Generating PDF for download..." });
+      const pdfDoc = await generateOrderPDF(pdfData);
+      pdfDoc.save(`Hino-Order-Receipt-${pdfData.orderId}.pdf`);
     }
   };
 
-  // --- JSX (REMAINS LARGELY THE SAME) ---
-
   if (lastSuccessfulOrder) {
     return (
-      <div className="container mx-auto py-12 px-4 text-center">
-        <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-        <h1 className="text-3xl font-bold mb-4 text-gray-800">
-          Order Confirmed!
-        </h1>
-        <p className="mb-2 text-gray-600">
-          Thank you for your order, {lastSuccessfulOrder.customer.fullName}.
-        </p>
-        <p className="mb-4 text-gray-600">
-          Your Order ID is <strong>{lastSuccessfulOrder.orderId}</strong>.
-        </p>
-        <p className="mb-8 text-gray-600">
-          A confirmation email has been sent to{" "}
-          {lastSuccessfulOrder.customer.email}. We will get back to you shortly.
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-          <Button
-            variant="outline"
-            onClick={handleDownloadPDF}
-            className="w-full sm:w-auto"
-          >
-            <Download className="mr-2 h-4 w-4" /> Download PDF Receipt
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handlePrint}
-            className="w-full sm:w-auto"
-          >
-            <Printer className="mr-2 h-4 w-4" /> Print Receipt
-          </Button>
+      <>
+        <div className="container mx-auto py-12 px-4 text-center">
+          <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
+          <h1 className="text-3xl font-bold mb-4 text-gray-800">
+            Order Confirmed!
+          </h1>
+          <p className="mb-2 text-gray-600">
+            Thank you for your order, {lastSuccessfulOrder.customer_full_name}.
+          </p>
+          <p className="mb-4 text-gray-600">
+            Your Order ID is <strong>{lastSuccessfulOrder.order_id_text}</strong>.
+          </p>
+          <p className="mb-8 text-gray-600">
+            We have recorded your order and will get back to you shortly.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+            <Button
+              variant="default"
+              onClick={() => setShowFeedbackDialog(true)}
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+            >
+              <MessageSquare className="mr-2 h-4 w-4" /> Leave Feedback
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleDownloadPDF}
+              className="w-full sm:w-auto"
+            >
+              <Download className="mr-2 h-4 w-4" /> Download Receipt
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handlePrint}
+              className="w-full sm:w-auto"
+            >
+              <Printer className="mr-2 h-4 w-4" /> Print Receipt
+            </Button>
+          </div>
+          <Link href="/products">
+            <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
+              Continue Shopping
+            </Button>
+          </Link>
         </div>
-        <Link href="/products">
-          <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
-            Continue Shopping
-          </Button>
-        </Link>
-      </div>
+        
+        <FeedbackDialog
+          open={showFeedbackDialog}
+          onOpenChange={setShowFeedbackDialog}
+          onSubmit={handleFeedbackSubmit}
+          isSubmitting={isSubmittingFeedback}
+        />
+      </>
     );
   }
 
@@ -264,13 +287,11 @@ export default function CartPage() {
         <p className="mb-8 text-gray-700">
           Looks like you haven't added any products yet.
         </p>
-        <div className="flex justify-center items-center">
-          <Link href="/products">
-            <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
-              Browse Products
-            </Button>
-          </Link>
-        </div>
+        <Link href="/products">
+          <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
+            Browse Products
+          </Button>
+        </Link>
       </div>
     );
   }
