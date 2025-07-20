@@ -236,7 +236,7 @@ export default function CartPage() {
             Your Order ID is <strong>{lastSuccessfulOrder.order_id_text}</strong>.
           </p>
           <p className="mb-8 text-gray-600">
-            We have recorded your order and will get back to you shortly.
+            Your order was sent through your email. We will get back to you shortly.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
             <Button
