@@ -22,7 +22,7 @@ const nextConfig = {
     parallelServerCompiles: true,
   },
 
-  // Add security headers with cross-browser compatibility
+  // Enhanced security headers
   async headers() {
     return [
       {
@@ -50,7 +50,7 @@ const nextConfig = {
           },
           {
             key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
+            value: 'DENY' // Changed from SAMEORIGIN to DENY for better security
           },
           {
             key: 'X-Content-Type-Options',
@@ -62,13 +62,13 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()'
+            value: 'accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), display-capture=(), document-domain=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), otp-credentials=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), speaker-selection=(), usb=(), web-share=(), xr-spatial-tracking=()'
           },
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload'
           },
-          // Additional headers for cross-browser compatibility
+          // Additional security headers
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on'
@@ -76,9 +76,87 @@ const nextConfig = {
           {
             key: 'X-XSS-Protection',
             value: '1; mode=block'
+          },
+          // Add missing headers from security report
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'unsafe-none' // Use 'require-corp' if you want stricter isolation
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin-allow-popups' // Allows popups while maintaining some security
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'same-site' // Allows same-site requests
+          },
+          // Server identification hiding
+          {
+            key: 'Server',
+            value: '' // Hide server information
+          },
+          {
+            key: 'X-Powered-By',
+            value: '' // Hide X-Powered-By header
+          }
+        ]
+      },
+      // Specific headers for API routes
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate'
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache'
+          },
+          {
+            key: 'Expires',
+            value: '0'
+          },
+          {
+            key: 'Surrogate-Control',
+            value: 'no-store'
+          }
+        ]
+      },
+      // Security headers for static assets
+      {
+        source: '/((?!api/).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
           }
         ]
       }
+    ]
+  },
+
+  // Additional security configurations
+  poweredByHeader: false, // Remove X-Powered-By header
+  
+  // Redirect configuration for HTTPS enforcement
+  async redirects() {
+    return [
+      // Force HTTPS in production
+      ...(process.env.NODE_ENV === 'production' ? [
+        {
+          source: '/:path*',
+          has: [
+            {
+              type: 'header',
+              key: 'x-forwarded-proto',
+              value: 'http',
+            },
+          ],
+          destination: 'https://fairpointca.com/:path*',
+          permanent: true,
+        }
+      ] : [])
     ]
   }
 }
