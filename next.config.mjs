@@ -22,7 +22,7 @@ const nextConfig = {
     parallelServerCompiles: true,
   },
 
-  // Add security headers
+  // Add security headers with cross-browser compatibility
   async headers() {
     return [
       {
@@ -30,7 +30,23 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none'; frame-ancestors 'none';"
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for Next.js
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", // Allow Google Fonts
+              "img-src 'self' data: blob: https:", // Allow images from https sources
+              "font-src 'self' https://fonts.gstatic.com data:", // Allow Google Fonts
+              "connect-src 'self' https://tsoipxivyikuvlgsjdl.supabase.co https://api.supabase.co https://*.supabase.co wss://tsoipxivyikuvlgsjdl.supabase.co", // Supabase connections
+              "media-src 'self' blob: data:", // Allow media files
+              "worker-src 'self' blob:", // Allow web workers
+              "child-src 'self'", // Allow iframes from same origin
+              "frame-src 'self'", // Allow frames from same origin
+              "object-src 'none'", // Block objects for security
+              "base-uri 'self'", // Restrict base URI
+              "form-action 'self'", // Allow form submissions to same origin
+              "frame-ancestors 'none'", // Prevent clickjacking
+              "upgrade-insecure-requests" // Upgrade HTTP to HTTPS
+            ].join('; ')
           },
           {
             key: 'X-Frame-Options',
@@ -46,11 +62,20 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'geolocation=(), microphone=(), camera=()'
+            value: 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()'
           },
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload'
+          },
+          // Additional headers for cross-browser compatibility
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
           }
         ]
       }
